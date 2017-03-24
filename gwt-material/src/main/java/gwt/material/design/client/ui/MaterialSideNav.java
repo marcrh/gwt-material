@@ -75,7 +75,7 @@ public class MaterialSideNav extends MaterialWidget implements HasType<SideNavTy
     private int width = 240;
     private Edge edge = Edge.LEFT;
     private boolean closeOnClick = false;
-    private boolean alwaysShowActivator = false;
+    private boolean alwaysShowActivator = true;
     private boolean allowBodyScroll = false;
     private boolean open;
     private Boolean showOnAttach;
@@ -120,7 +120,7 @@ public class MaterialSideNav extends MaterialWidget implements HasType<SideNavTy
         // Initialize the side nav
         initialize();
 
-        if(showOnAttach != null) {
+        if (showOnAttach != null) {
             // Ensure the side nav starts closed
             $(activator).trigger("menu-in", null);
 
@@ -133,7 +133,7 @@ public class MaterialSideNav extends MaterialWidget implements HasType<SideNavTy
                 });
             }
         } else {
-            if(!getType().equals(SideNavType.CARD)) {
+            if (!getType().equals(SideNavType.CARD)) {
                 setLeft(0);
             }
             $(activator).trigger("menu-out", null);
@@ -296,6 +296,9 @@ public class MaterialSideNav extends MaterialWidget implements HasType<SideNavTy
         if (activator != null && type != null) {
             addStyleName(type.getCssName());
             switch (type) {
+                case FIXED:
+                    applyFixedType();
+                    break;
                 case MINI:
                     setWidth(64);
                     break;
@@ -318,6 +321,17 @@ public class MaterialSideNav extends MaterialWidget implements HasType<SideNavTy
 
     protected boolean isSmall() {
         return !gwt.material.design.client.js.Window.matchMedia("all and (max-width: 992px)");
+    }
+
+    protected void applyFixedType() {
+        $(JQuery.window()).off("resize").resize((e, param1) -> {
+            if (gwt.material.design.client.js.Window.matchMedia("all and (min-width: 992px)")) {
+                addStyleName(CssName.OPEN);
+            } else {
+                removeStyleName(CssName.OPEN);
+            }
+            return true;
+        });
     }
 
     /**
@@ -376,18 +390,20 @@ public class MaterialSideNav extends MaterialWidget implements HasType<SideNavTy
     }
 
     protected void initialize(boolean strict) {
-        if (activator == null) {
+        try {
             activator = DOMHelper.getElementByAttribute("data-activates", getId());
-            if (activator != null) {
-                if (alwaysShowActivator || !isFixed()) {
-                    String style = activator.getAttribute("style");
+            if (!isFixed()) {
+                String style = activator.getAttribute("style");
+                if (alwaysShowActivator) {
                     activator.setAttribute("style", style + "; display: block !important");
-                    activator.removeClassName(CssName.NAVMENU_PERMANENT);
+                } else {
+                    activator.setAttribute("style", style + "; display: none !important");
                 }
-            } else if (strict) {
-                throw new RuntimeException("Cannot find an activator for the MaterialSideNav, " +
-                        "please ensure you have a MaterialNavBar with an activator setup to match " +
-                        "this widgets id.");
+                activator.removeClassName(CssName.NAVMENU_PERMANENT);
+            }
+        } catch (Exception ex) {
+            if (strict) {
+                throw new IllegalArgumentException("Could not setup MaterialSideNav please ensure you have MaterialNavBar with an activator setup to match this widgets id.");
             }
         }
 

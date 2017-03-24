@@ -19,7 +19,6 @@
  */
 package gwt.material.design.client.ui;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -153,16 +152,13 @@ public class MaterialRange extends AbstractValueWidget<Integer> implements HasCh
     @Override
     public void setValue(Integer value, boolean fireEvents) {
         if (value == null) {
-            GWT.log("Value must be null", new RuntimeException());
-            return;
+            throw new IllegalArgumentException("Value must not be null");
         }
         if (value < getMin()) {
-            GWT.log("Value must not be less than the minimum range value.", new RuntimeException());
-            return;
+            throw new IllegalArgumentException("Value must not be less than the minimum range value.");
         }
         if (value > getMax()) {
-            GWT.log("Value must not be greater than the maximum range value", new RuntimeException());
-            return;
+            throw new IllegalArgumentException("Value must not be greater than the maximum range value");
         }
         setIntToRangeElement(VALUE, value);
 

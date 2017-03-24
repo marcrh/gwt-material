@@ -19,7 +19,6 @@
  */
 package gwt.material.design.client.ui;
 
-import com.google.gwt.core.client.GWT;
 import gwt.material.design.client.base.NumberBox;
 import gwt.material.design.client.base.NumberBox.NumberHandler;
 import gwt.material.design.client.constants.InputType;
@@ -74,12 +73,10 @@ public abstract class MaterialNumberBox<T> extends MaterialValueBox<T> {
 
     @Override
     public T getValue() {
-    	Double number = getValueAsNumber();
-    	if(number!=null){
-    		return parseNumber(number);
-    	}else{
-    		return null;
-    	}
+        if (getValueAsNumber() != null) {
+            return parseNumber(getValueAsNumber());
+        }
+        return null;
     }
 
     protected abstract T parseNumber(double number);
@@ -94,8 +91,7 @@ public abstract class MaterialNumberBox<T> extends MaterialValueBox<T> {
         if (value != null && !value.isEmpty()) {
             return Double.parseDouble(value);
         } else {
-            //throw new RuntimeException("Field must be a number.");
-        	return null;
+            return null;
         }
     }
 }
