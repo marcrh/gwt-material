@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2017 GwtMaterialDesign
+ * Copyright (C) 2015 - 2016 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,27 @@
  * limitations under the License.
  * #L%
  */
-package gwt.material.design.client.pwa.serviceworker;
+package gwt.material.design.client.base;
 
-import jsinterop.annotations.JsProperty;
-import jsinterop.annotations.JsType;
+public interface HasInOutDurationTransition {
 
-import static jsinterop.annotations.JsPackage.GLOBAL;
+    /**
+     * Set the in / enter animation duration in milliseconds.
+     */
+    void setInDuration(int inDuration);
 
-//TODO Need to transfer this at GMD JQuery
-@JsType(isNative = true, namespace = GLOBAL, name = "navigator")
-public class Navigator {
+    /**
+     * Get the in / enter animation duration in milliseconds.
+     */
+    int getInDuration();
 
-    @JsProperty
-    public static ServiceWorkerContainer serviceWorker;
+    /**
+     * Set the out / exit animation duration in milliseconds.
+     */
+    void setOutDuration(int outDuration);
 
-    @JsProperty
-    public static boolean onLine;
-
+    /**
+     * Get the out / exit animation duration in milliseconds.
+     */
+    int getOutDuration();
 }

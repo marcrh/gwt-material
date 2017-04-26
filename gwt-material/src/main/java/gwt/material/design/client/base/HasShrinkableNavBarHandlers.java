@@ -17,26 +17,15 @@
  * limitations under the License.
  * #L%
  */
-package gwt.material.design.client.pwa.serviceworker;
+package gwt.material.design.client.base;
 
-public interface HasServiceWorker {
+import com.google.web.bindery.event.shared.HandlerRegistration;
+import gwt.material.design.client.events.NavBarExpandEvent;
+import gwt.material.design.client.events.NavBarShrinkEvent;
 
-    /**
-     * Set up the service worker configuration file (service-worker.js) to enable
-     * the Offline Feature of your GMD PWA App.
-     * @param serviceWorkerUrl
-     */
-    void setupServiceWorker(String serviceWorkerUrl);
+public interface HasShrinkableNavBarHandlers {
 
-    /**
-     * Unregister the Service Worker
-     */
-    void unRegisterServiceWorker();
+    HandlerRegistration addExpandHandler(NavBarExpandEvent.NavBarExpandHandler handler);
 
-    /**
-     * Checks the server for an updated version of the service worker without consulting caches.
-     */
-    void updateServiceWorker();
-
-    ServiceWorker getServiceWorker();
+    HandlerRegistration addShrinkHandler(NavBarShrinkEvent.NavBarShrinkHandler handler);
 }

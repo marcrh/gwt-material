@@ -32,9 +32,6 @@ public interface MaterialDebugResources extends ClientBundle {
     @Source("js/animation.js")
     TextResource animationJsDebug();
 
-    @Source("js/shrink.js")
-    TextResource shrinkJsDebug();
-
     @Source("js/push.js")
     TextResource pushNotificationJsDebug();
 }
