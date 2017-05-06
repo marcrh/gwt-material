@@ -81,8 +81,6 @@ public class MaterialListValueBox<T> extends AbstractValueWidget<T> implements H
     private final ListBox listBox = new ListBox();
     private final Label label = new Label();
 
-    private boolean initialized;
-
     // By default the key is generated using toString
     private KeyFactory<T, String> keyFactory = Object::toString;
 
@@ -106,13 +104,14 @@ public class MaterialListValueBox<T> extends AbstractValueWidget<T> implements H
 
     @Override
     protected void onLoad() {
-        super.onLoad();
         build();
+
+        super.onLoad();
     }
 
     @Override
     protected void build() {
-        if (!initialized) {
+        if (!isInitialize()) {
             $(listBox.getElement()).change((e, param) -> {
                 try {
                     ValueChangeEvent.fire(this, getValue());
@@ -129,7 +128,6 @@ public class MaterialListValueBox<T> extends AbstractValueWidget<T> implements H
             add(listBox);
             add(label);
             add(errorLabel);
-            initialize();
         }
     }
 
@@ -143,7 +141,6 @@ public class MaterialListValueBox<T> extends AbstractValueWidget<T> implements H
         }
         $(listBox.getElement()).off("change");
         $(listBox.getElement()).material_select("destroy");
-        initialized = false;
     }
 
     @Override
@@ -189,6 +186,7 @@ public class MaterialListValueBox<T> extends AbstractValueWidget<T> implements H
      * called every time the contents of the list box
      * changes, to keep the Materialize CSS design updated.
      */
+    @Override
     protected void initialize() {
         JsMaterialElement.$(listBox.getElement()).material_select(() -> JQuery.$("input.select-dropdown").trigger("close", null));
         // Fixed auto hide when scrolling on IE Browsers
@@ -198,14 +196,14 @@ public class MaterialListValueBox<T> extends AbstractValueWidget<T> implements H
             }
             return true;
         });
-        initialized = true;
     }
 
     /**
      * Initialize if we have already initialized before.
      */
-    protected void reinitialize() {
-        if (initialized) {
+    @Override
+    public void reinitialize() {
+        if (isInitialize()) {
             initialize();
         }
     }
