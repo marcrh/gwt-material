@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@
 
 package gwt.material.design.client.js;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsDate;
 import com.google.gwt.dom.client.Element;
 import gwt.material.design.jquery.client.api.Functions;
 import gwt.material.design.jquery.client.api.JQueryElement;
-import jsinterop.annotations.*;
-
-import java.util.Date;
+import jsinterop.annotations.JsMethod;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
+import jsinterop.annotations.JsType;
 
 /**
  * JSInterop utils for Materialize component
@@ -161,16 +161,13 @@ public class JsMaterialElement extends JQueryElement {
     public native JsMaterialElement pickadate(JsDatePickerOptions property);
 
     @JsMethod
-    public native JsMaterialElement set(String key, JavaScriptObject value);
+    public native JsMaterialElement set(String key, Object value);
 
     @JsMethod
-    public native JsMaterialElement set(String key, JavaScriptObject value, Functions.Func function);
+    public native JsMaterialElement on(String action, Functions.Func1<Thing> thing);
 
     @JsMethod
-    public native JsMaterialElement set(String key, Date value);
-
-    @JsMethod
-    public native JsMaterialElement set(String key, Date value, Functions.Func function);
+    public native JsMaterialElement set(String key, Object value, Functions.Func function);
 
     @JsMethod
     public native JsMaterialElement get(String key);
@@ -242,7 +239,7 @@ public class JsMaterialElement extends JQueryElement {
      * Toast Component
      */
     @JsMethod(namespace = "Materialize")
-    public static native double toast(String message, int duration, String classname, Functions.Func callback);
+    public static native double toast(String message, Object duration, String classname, Functions.Func callback);
 
     /**
      * Character Component

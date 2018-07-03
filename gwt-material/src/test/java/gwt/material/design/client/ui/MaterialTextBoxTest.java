@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,33 @@
 package gwt.material.design.client.ui;
 
 /**
- * Test case for Text Box
+ * Test case for Text Box.
  *
  * @author kevzlou7979
+ * @author Ben Dol
  */
-public class MaterialTextBoxTest extends MaterialValueBoxTest {
+public class MaterialTextBoxTest extends MaterialValueBoxTest<MaterialTextBox> {
 
-    public void init() {
-        MaterialTextBox txtBox = new MaterialTextBox();
-        checkValueBox(txtBox);
-        checkValueChangeEvent(txtBox.getValueBoxBase(), "Value 1", "Value 2");
+    @Override
+    protected MaterialTextBox createWidget() {
+        return new MaterialTextBox();
+    }
+
+    @Override
+    public void testValue() {
+        // given
+        MaterialTextBox textBox = getWidget();
+
+        // when / then
+        textBox.setValue("test");
+        assertEquals("test", textBox.getValue());
+    }
+
+    public void testValueChangeEvent() {
+        // given
+        MaterialTextBox textBox = getWidget();
+
+        // when / then
+        checkValueChangeEvent(textBox, "Value 1", "Value 2");
     }
 }

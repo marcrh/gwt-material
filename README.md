@@ -1,14 +1,18 @@
 <img src="http://i.imgur.com/VaBxpGj.png" />
 <h2>gwt-material</h2>
 <p>A Google Material Design wrapper for GWT</p>
+
 [![Build Status](https://travis-ci.org/GwtMaterialDesign/gwt-material.svg?branch=master)](https://travis-ci.org/GwtMaterialDesign/gwt-material) [![Join the chat at https://gitter.im/GwtMaterialDesign/gwt-material](https://img.shields.io/badge/GITTER-join%20chat-green.svg)](https://gitter.im/GwtMaterialDesign/gwt-material?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <br/>
 
+## Migration 2.0 -> 2.1
+- [Mojo to TBroyer](https://github.com/GwtMaterialDesign/gwt-material/wiki/Migrating-from-Mojo-GWT-Maven-Plugin-to-TBroyer)
+- [PWA Support](https://github.com/GwtMaterialDesign/gwt-material/wiki/PWA-:-Service-Worker-Automation)
+
 ## Demo
-* [2.0-rc4 Release Demo](http://gwtmaterialdesign.github.io/gwt-material-demo/)
-* [2.0 Snapshot Demo](http://gwtmaterialdesign.github.io/gwt-material-demo/snapshot/)
-* [2.1 Snapshot Demo](http://gwtmaterialdesign.github.io/gwt-material-demo/2.1/)
+* [2.0.1 Release Demo](http://gwtmaterialdesign.github.io/gwt-material-demo/)
+* [2.1 Snapshot Demo](http://gwtmaterialdesign.github.io/gwt-material-demo/snapshot/)
 
 ## Documentation
 Support documentation can be found [here](https://github.com/GwtMaterialDesign/gwt-material/wiki) <br/>
@@ -16,20 +20,20 @@ We created <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/apidocs
 
 
 ## Maven
-### Current Version 2.0-rc4
+### Current Version 2.0.1
 ```xml
 <dependency>
     <groupId>com.github.gwtmaterialdesign</groupId>
     <artifactId>gwt-material</artifactId>
-    <version>2.0-rc4</version>
+    <version>2.0.1</version>
 </dependency>
 ```
-### Snapshot Version 2.0-SNAPSHOT
+### Snapshot Version 2.1-SNAPSHOT
 ```xml
 <dependency>
     <groupId>com.github.gwtmaterialdesign</groupId>
     <artifactId>gwt-material</artifactId>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.1-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -62,6 +66,15 @@ Please follow the [contribution document](https://github.com/GwtMaterialDesign/g
  <li><a href="https://github.com/GwtMaterialDesign/gwt-material-template" >Starter</a></li>
  <li><a href="https://github.com/GwtMaterialDesign/gwt-material-patterns" >Patterns</a></li>
 </ul>
+
+## JUnit Test
+
+| Project | Number of Tests |
+| --- | --- | 
+| gwt-material | 1545 |
+| gwt-material-addins | 1048 |
+| gwt-material-table | 100 |
+| **Total Unit Tests** | **2693** |
 
 ## Testing Platform
 <p>Many thanks to BrowserStack for sponsoring our Open Source projects</p>

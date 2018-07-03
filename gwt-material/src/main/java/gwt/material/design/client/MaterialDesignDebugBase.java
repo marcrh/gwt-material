@@ -4,7 +4,7 @@ package gwt.material.design.client;
  * #%L
  * GwtMaterialDesign
  * %%
- * Copyright (C) 2015 GwtMaterial
+ * Copyright (C) 2015 - 2017 GwtMaterial
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class MaterialDesignDebugBase extends MaterialDesignBase {
         if(!isMaterializeLoaded()) {
             injectDebugJs(MaterialDebugResources.INSTANCE.materializeJsDebug());
             injectDebugJs(MaterialDebugResources.INSTANCE.animationJsDebug());
-            injectDebugJs(MaterialDebugResources.INSTANCE.pushNotificationJsDebug());
+            injectDebugJs(MaterialDebugResources.INSTANCE.appInstallerJsDebug());
         }
         onModuleLoaded();
     }

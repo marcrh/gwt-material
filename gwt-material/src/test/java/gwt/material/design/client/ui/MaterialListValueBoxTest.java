@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,60 +20,38 @@
 package gwt.material.design.client.ui;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.user.client.ui.HasEnabled;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.UIObject;
 import gwt.material.design.client.base.MaterialWidget;
 import gwt.material.design.client.constants.CssName;
 import gwt.material.design.client.ui.base.AbstractValueWidgetTest;
 import gwt.material.design.client.ui.dto.User;
-import gwt.material.design.client.ui.html.Label;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test case for List Value Box
+ * Test case for List Value Box.
  *
  * @author kevzlou7979
+ * @author Ben Dol
  */
-public class MaterialListValueBoxTest extends AbstractValueWidgetTest {
+public class MaterialListValueBoxTest<T> extends AbstractValueWidgetTest<MaterialListValueBox<T>> {
 
-    public void init() {
-        MaterialListValueBox<User> valueBox = new MaterialListValueBox<>();
-        checkWidget(valueBox);
-        checkValues(valueBox);
-        checkProperties(valueBox);
-        MaterialListBox listBox = new MaterialListBox();
-        checkValueAsListBox(listBox);
+    private MaterialListValueBox<User> listValueBox;
+
+    @Override
+    protected MaterialListValueBox<T> createWidget() {
+        return new MaterialListValueBox<>();
     }
 
     @Override
-    protected <T extends MaterialWidget> void checkInteractionEvents(T widget, boolean enabled) {
-        // TODO ListValueBox overrides the interaction event implementation Need to update this later
+    public void testInitialClasses() {
+        checkInitialClasses(CssName.INPUT_FIELD);
     }
 
-    @Override
-    protected <T extends MaterialWidget> void checkChildren(T widget) {
-        MaterialListBox listbox = new MaterialListBox();
-        RootPanel.get().add(listbox);
-        assertEquals(listbox.getChildren().size(), 3);
-
-        assertTrue(listbox.getWidget(0) instanceof ListBox);
-        assertTrue(listbox.getWidget(1) instanceof Label);
-        assertTrue(listbox.getWidget(2) instanceof MaterialLabel);
-    }
-
-    public <T extends MaterialListValueBox<User>> void checkValues(T listValueBox) {
-        List<User> users = new ArrayList<>();
-        // Add Item test
-        for (int i = 1; i <= 5; i++) {
-            User user = new User("user" + i, "User " + i);
-            users.add(user);
-            listValueBox.addItem(user);
-            //widget.addItem(user, user.getEmail());
-            //widget.add(user);
+    public <M> void checkValues(MaterialListValueBox<M> listValueBox, List<M> models) {
+        for (M model : models) {
+            listValueBox.addItem(model);
         }
 
         for (int i = 0; i <= 4; i++) {
@@ -82,91 +60,212 @@ public class MaterialListValueBoxTest extends AbstractValueWidgetTest {
 
         // Set selected item test
         listValueBox.setSelectedIndex(0);
-        assertEquals(listValueBox.getSelectedIndex(), 0);
+        assertEquals(0, listValueBox.getSelectedIndex());
         assertNotNull(listValueBox.getSelectedValue());
-        assertEquals(users.get(0), listValueBox.getSelectedValue());
+        assertEquals(listValueBox.getSelectedValue(), models.get(0));
 
         // Check ValueChange Event
-        checkValueChangeEvent(listValueBox, users.get(0), users.get(1));
+        checkValueChangeEvent(listValueBox, models.get(0), models.get(1));
 
         // Remove item test
         listValueBox.removeItem(0);
-        users.remove(0);
-        assertEquals(listValueBox.getItemCount(), users.size());
-        assertEquals(users.get(0), listValueBox.getSelectedValue());
+        models.remove(0);
+        assertEquals(models.size(), listValueBox.getItemCount());
+        assertEquals(listValueBox.getSelectedValue(), models.get(0));
 
         // Insert item test
-        User inserted = new User("inserted", "Inserted");
-        listValueBox.insertItem(inserted, 1);
-        assertNotNull(inserted);
-        assertEquals(listValueBox.getValue(1), inserted);
+        M model = models.get(2);
+        listValueBox.insertItem(model, 1);
+        assertNotNull(model);
+        assertEquals(model, listValueBox.getValue(1));
 
         // Clear test
         listValueBox.clear();
         assertNull(listValueBox.getSelectedValue());
-        assertEquals(listValueBox.getItemCount(), 0);
+        assertEquals(0, listValueBox.getItemCount());
     }
 
-    public <T extends MaterialListValueBox<String>> void checkValueAsListBox(T widget) {
-        List<String> users = new ArrayList<>();
-        // Add Item test
+    public void testValues() {
+        // given
+        listValueBox = new MaterialListValueBox<>();
+        RootPanel.get().add(listValueBox);
+
+        List<User> users = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
-            users.add("Item" + i);
-            widget.addItem("Item" + i);
-            //widget.addItem("Item" + i, "value" + i);
-            //widget.add("Item" + i);
+            User user = new User("user" + i, "User " + i);
+            users.add(user);
         }
 
-        for (int i = 0; i <= 4; i++) {
-            assertNotNull(widget.getValue(i));
-        }
-
-        // Set selected item test
-        widget.setSelectedIndex(0);
-        assertEquals(widget.getSelectedIndex(), 0);
-        assertNotNull(widget.getSelectedValue());
-        assertEquals(users.get(0), widget.getSelectedValue());
-
-        // Remove item test
-        widget.removeItem(0);
-        users.remove(0);
-        assertEquals(widget.getItemCount(), users.size());
-        assertEquals(users.get(0), widget.getSelectedValue());
-
-        // Insert item test
-        String inserted = new String("inserted");
-        widget.insertItem(inserted, 1);
-        assertNotNull(inserted);
-        assertEquals(widget.getValue(1), inserted);
-
-        // Clear test
-        widget.clear();
-        assertNull(widget.getSelectedValue());
-        assertEquals(widget.getItemCount(), 0);
+        // when / then
+        checkValues(listValueBox, users);
     }
 
-    public <T extends MaterialListValueBox<User>> void checkProperties(T listValueBox) {
-        listValueBox.setOld(true);
-        assertTrue(listValueBox.isOld());
-        listValueBox.setOld(false);
-        assertFalse(listValueBox.isOld());
+    public void testProperties() {
+        // UiBinder
+        // given
+        MaterialListValueBox<T> listValueBox = getWidget(false);
+
+        // when / then
+        checkProperties(listValueBox);
+
+        attachWidget();
+
+        // Standard
+        // given
+        checkProperties(listValueBox);
+    }
+
+    protected void checkProperties(MaterialListValueBox listValueBox) {
+        // when / then
         listValueBox.setMultipleSelect(true);
         assertTrue(listValueBox.isMultipleSelect());
     }
 
-    @Override
-    public <T extends MaterialWidget & HasEnabled> void checkEnabled(T widget) {
-        checkEnabled(new MaterialListValueBox<User>());
+    public void testBrowserDefault() {
+        // UiBinder
+        // given
+        MaterialListValueBox<T> listValueBox = getWidget(false);
+
+        // when / then
+        checkBrowserDefault(listValueBox, false);
+
+        // Standard
+        // given
+        attachWidget();
+
+        // when / then
+        checkBrowserDefault(listValueBox, true);
     }
 
-    public <T extends MaterialListValueBox & HasEnabled, H extends UIObject> void checkEnabled(T listValueBox) {
+    protected void checkBrowserDefault(MaterialListValueBox listValueBox, boolean checkElement) {
+        listValueBox.setOld(true);
+        assertTrue(listValueBox.isOld());
+        if (checkElement) {
+            assertTrue(listValueBox.getListBox().getElement().hasClassName("browser-default"));
+        }
+
+        listValueBox.setOld(false);
+        assertFalse(listValueBox.isOld());
+        if (checkElement) {
+            assertFalse(listValueBox.getListBox().getElement().hasClassName("browser-default"));
+        }
+    }
+
+    public void testEnabled() {
+        // given
+        MaterialListValueBox<T> listValueBox = getWidget();
+
+        // when / then
         final Element element = listValueBox.getListBox().getElement();
         assertFalse(element.hasAttribute(CssName.DISABLED));
         listValueBox.setEnabled(true);
         assertFalse(element.hasAttribute(CssName.DISABLED));
-        assertEquals(listValueBox.isEnabled(), true);
+        assertTrue(listValueBox.isEnabled());
         listValueBox.setEnabled(false);
         assertTrue(element.hasAttribute(CssName.DISABLED));
-        assertEquals(listValueBox.getListBox().isEnabled(), false);
+        assertFalse(listValueBox.getListBox().isEnabled());
+    }
+
+    public void testReadOnly() {
+        // given
+        MaterialListValueBox<T> valueBox = getWidget();
+
+        // when / then
+        checkReadOnly(valueBox, valueBox.getListBox());
+    }
+
+    public void testErrorSuccess() {
+        // given
+        MaterialListValueBox<T> valueBox = getWidget();
+
+        // when / then
+        checkFieldErrorSuccess(valueBox, valueBox.getErrorLabel(), valueBox, valueBox.getLabel());
+    }
+
+    public void testPlaceholder() {
+        // UiBinder
+        // given
+        MaterialListValueBox<T> valueBox = getWidget(false);
+
+        // when / then
+        checkPlaceholder(valueBox);
+
+        // Standard
+        // given
+        attachWidget();
+
+        // when / then
+        checkPlaceholder(valueBox);
+    }
+
+    public void testAllowBlanks() {
+        // given
+        MaterialListValueBox<Integer> valueBox = (MaterialListValueBox<Integer>) getWidget();
+        assertFalse(valueBox.isAllowBlank());
+        assertEquals(0, valueBox.getItemCount());
+
+        // when / then
+        valueBox.setAllowBlank(true);
+        assertEquals(1, valueBox.getItemCount());
+
+        valueBox.addItem(Integer.valueOf(1));
+        assertEquals(2, valueBox.getItemCount());
+        valueBox.addItem(Integer.valueOf(2));
+        valueBox.addItem(Integer.valueOf(3));
+        assertTrue(valueBox.isAllowBlank());
+        valueBox.setSelectedIndex(-1);
+        assertNull(valueBox.getSelectedValue());
+        assertNull(valueBox.getValue());
+
+        valueBox.setValue(null);
+        assertEquals(0, valueBox.getSelectedIndex());
+        assertNull(valueBox.getValue());
+        valueBox.setValue(Integer.valueOf(2));
+        assertEquals(2, valueBox.getSelectedIndex());
+        assertNotNull(valueBox.getValue());
+        valueBox.setValue(null);
+        assertEquals(0, valueBox.getSelectedIndex());
+        assertNull(valueBox.getValue());
+
+        valueBox.setAllowBlank(false);
+        assertEquals(0, valueBox.getSelectedIndex());
+        assertNotNull(valueBox.getValue());
+
+        valueBox.setAllowBlank(true);
+        valueBox.setValue(null);
+        assertNull(valueBox.getValue());
+
+    }
+
+    public void testFocusAndBlurHandlers() {
+        MaterialListValueBox<T> valueBox = getWidget();
+        checkFocusAndBlurEvents(valueBox);
+    }
+
+    public void testEmptyPlaceHolder() {
+        // Given
+        final String EMPTY_PLACEHOLDER = "select-item";
+        MaterialListValueBox<Integer> valueBox = new MaterialListValueBox<>();
+        for (int i = 0; i <= 10; i++) {
+            valueBox.addItem(i, "Item " + i);
+        }
+        RootPanel.get().add(valueBox);
+
+        // when / then
+        valueBox.setEmptyPlaceHolder(EMPTY_PLACEHOLDER);
+        assertEquals(EMPTY_PLACEHOLDER, valueBox.getEmptyPlaceHolder());
+        assertEquals(valueBox.getListBox().getItemText(0), EMPTY_PLACEHOLDER);
+        assertTrue(valueBox.getOptionElement(0).isDisabled());
+
+        valueBox.setEmptyPlaceHolder(null);
+        assertNotSame(EMPTY_PLACEHOLDER, valueBox.getEmptyPlaceHolder());
+        assertNotSame(EMPTY_PLACEHOLDER, valueBox.getOptionElement(0));
+        assertNotNull(valueBox.getValue());
+    }
+
+
+    @Override
+    protected void checkWaves(MaterialListValueBox<T> widget, boolean checkElement) {
+        super.checkWaves(getWidget(), false);
     }
 }

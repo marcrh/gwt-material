@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,16 @@
  */
 package gwt.material.design.client.ui.base.helper;
 
-import gwt.material.design.client.base.helper.ColorHelper;
+import gwt.material.design.client.MaterialTestCase;
 import gwt.material.design.client.base.helper.EnumHelper;
-import gwt.material.design.client.base.helper.StyleHelper;
 import gwt.material.design.client.constants.Color;
-import junit.framework.TestCase;
 
 /**
  * Test case for {@link EnumHelper}.
  */
-public class EnumHelperTest extends TestCase {
+public class EnumHelperTest extends MaterialTestCase {
 
-    public EnumHelperTest() {
-        checkFromStyleName();
-    }
-
-    private void checkFromStyleName() {
+    public void testFromStyleName() {
         assertEquals(Color.PINK,
             EnumHelper.fromStyleName("pink", Color.class, Color.DEFAULT));
 

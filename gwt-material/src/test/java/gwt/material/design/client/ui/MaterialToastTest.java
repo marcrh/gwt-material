@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,26 +21,19 @@ package gwt.material.design.client.ui;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Timer;
-import gwt.material.design.client.ui.base.MaterialWidgetTest;
+import gwt.material.design.client.MaterialTestCase;
 
 import static gwt.material.design.jquery.client.api.JQuery.$;
 
 /**
- * Test case for Toasts
+ * Test case for Toasts.
  *
  * @author kevzlou7979
+ * @author Ben Dol
  */
-public class MaterialToastTest extends MaterialWidgetTest {
+public class MaterialToastTest extends MaterialTestCase {
 
-    public void init() {
-        checkToastStructure();
-        checkToastWithWidget();
-        checkToastWithStyling();
-        checkToastWithCallback();
-        checkMultipleToasts();
-    }
-
-    private void checkMultipleToasts() {
+    public void testMultipleToasts() {
         for (int i = 1; i <= 5; i++) {
             MaterialToast.fireToast("test" + i);
         }
@@ -56,7 +49,7 @@ public class MaterialToastTest extends MaterialWidgetTest {
         assertEquals(toastContainer.getChildCount(), 0);
     }
 
-    private void checkToastWithCallback() {
+    public void testToastWithCallback() {
         final boolean[] isCallbackFired = new boolean[1];
         new MaterialToast(() -> {
             isCallbackFired[0] = true;
@@ -73,7 +66,7 @@ public class MaterialToastTest extends MaterialWidgetTest {
         toastContainer.setInnerHTML("");
     }
 
-    private void checkToastWithStyling() {
+    public void testToastWithStyling() {
         MaterialToast.fireToast("test", "rounded");
         Element toastContainer = $("body").find("#toast-container").asElement();
         assertNotNull(toastContainer);
@@ -85,7 +78,7 @@ public class MaterialToastTest extends MaterialWidgetTest {
         toastContainer.setInnerHTML("");
     }
 
-    private void checkToastWithWidget() {
+    public void testToastWithWidget() {
         MaterialLink link = new MaterialLink();
         new MaterialToast(link).toast("test");
         Element toastContainer = $("body").find("#toast-container").asElement();
@@ -101,7 +94,7 @@ public class MaterialToastTest extends MaterialWidgetTest {
         toastContainer.setInnerHTML("");
     }
 
-    private void checkToastStructure() {
+    public void testToastStructure() {
         MaterialToast.fireToast("test");
         Element toastContainer = $("body").find("#toast-container").asElement();
         assertNotNull(toastContainer);

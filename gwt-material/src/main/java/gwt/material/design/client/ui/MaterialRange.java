@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ import static gwt.material.design.jquery.client.api.JQuery.$;
  *
  * @author kevzlou7979
  * @author Ben Dol
- * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#forms">Material Range</a>
+ * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#range">Material Range</a>
  * @see <a href="https://material.io/guidelines/components/sliders.html">Material Design Specification</a>
  */
 //@formatter:on
@@ -56,50 +56,18 @@ public class MaterialRange extends AbstractValueWidget<Integer> implements HasCh
     private Paragraph paragraph = new Paragraph();
     private MaterialInput rangeInputElement = new MaterialInput();
     private Span thumb = new Span();
-
+    private Span value = new Span();
     private static String VALUE = "value";
     private static String MAX = "max";
     private static String MIN = "min";
     private MaterialLabel errorLabel = new MaterialLabel();
-    private HandlerRegistration changeHandler;
-
-    private final ErrorMixin<MaterialRange, MaterialLabel> errorMixin = new ErrorMixin<>(this, errorLabel, null);
+    private ErrorMixin<AbstractValueWidget, MaterialLabel> errorMixin;
 
     /**
      * Creates a range
      */
     public MaterialRange() {
         super(Document.get().createFormElement());
-        build();
-    }
-
-    @Override
-    protected void build() {
-        getElement().setAttribute("action", "#");
-        errorLabel.setVisible(false);
-        paragraph.setStyleName(CssName.RANGE_FIELD);
-
-        rangeInputElement.setType(InputType.RANGE);
-        paragraph.add(rangeInputElement);
-
-        thumb.getElement().setClassName(CssName.THUMB);
-        Span value = new Span();
-        value.getElement().setClassName(CssName.VALUE);
-        thumb.add(value);
-
-        paragraph.add(thumb);
-        add(paragraph);
-
-        add(errorLabel);
-    }
-
-    @Override
-    protected void onLoad() {
-        super.onLoad();
-
-        if (changeHandler == null) {
-            changeHandler = addChangeHandler(changeEvent -> setValue(getValue(),true));
-        }
     }
 
     /**
@@ -117,8 +85,28 @@ public class MaterialRange extends AbstractValueWidget<Integer> implements HasCh
     }
 
     public void reset() {
+        super.reset();
+
         setValue(getMin());
-        clearErrorOrSuccess();
+    }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+
+        getElement().setAttribute("action", "#");
+        errorLabel.setVisible(false);
+        paragraph.setStyleName(CssName.RANGE_FIELD);
+        rangeInputElement.setType(InputType.RANGE);
+        paragraph.add(rangeInputElement);
+        thumb.getElement().setClassName(CssName.THUMB);
+        value.getElement().setClassName(CssName.VALUE);
+        thumb.add(value);
+        paragraph.add(thumb);
+        add(paragraph);
+        add(errorLabel);
+
+        registerHandler(addChangeHandler(changeEvent -> setValue(getValue(), true)));
     }
 
     /**
@@ -207,34 +195,24 @@ public class MaterialRange extends AbstractValueWidget<Integer> implements HasCh
         setIntToRangeElement(MAX, max);
     }
 
-    /**
-     * Register the ChangeHandler to become notified if the user changes the slider.
-     * The Handler is called when the user releases the mouse only at the end of the slide
-     * operation.
-     */
-    @Override
-    public HandlerRegistration addChangeHandler(final ChangeHandler handler) {
-        return getRangeInputElement().addDomHandler(handler, ChangeEvent.getType());
-    }
-
     @Override
     public void setError(String error) {
-        errorMixin.setError(error);
+        getErrorMixin().setError(error);
     }
 
     @Override
     public void setSuccess(String success) {
-        errorMixin.setSuccess(success);
+        getErrorMixin().setSuccess(success);
     }
 
     @Override
     public void setHelperText(String helperText) {
-        errorMixin.setHelperText(helperText);
+        getErrorMixin().setHelperText(helperText);
     }
 
     @Override
     public void clearErrorOrSuccess() {
-        errorMixin.clearErrorOrSuccess();
+        getErrorMixin().clearErrorOrSuccess();
     }
 
     public MaterialLabel getErrorLabel() {
@@ -251,5 +229,23 @@ public class MaterialRange extends AbstractValueWidget<Integer> implements HasCh
 
     public Span getThumb() {
         return thumb;
+    }
+
+    /**
+     * Register the ChangeHandler to become notified if the user changes the slider.
+     * The Handler is called when the user releases the mouse only at the end of the slide
+     * operation.
+     */
+    @Override
+    public HandlerRegistration addChangeHandler(final ChangeHandler handler) {
+        return getRangeInputElement().addDomHandler(handler, ChangeEvent.getType());
+    }
+
+    @Override
+    public ErrorMixin<AbstractValueWidget, MaterialLabel> getErrorMixin() {
+        if (errorMixin == null) {
+            errorMixin = new ErrorMixin<>(this, errorLabel, null);
+        }
+        return errorMixin;
     }
 }

@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@
  */
 package gwt.material.design.client.base.mixin;
 
+import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.UIObject;
 import gwt.material.design.client.base.HasReadOnly;
-import gwt.material.design.client.base.MaterialWidget;
 import gwt.material.design.client.base.helper.StyleHelper;
 import gwt.material.design.client.constants.CssName;
 
 import static gwt.material.design.jquery.client.api.JQuery.$;
 
-public class ReadOnlyMixin<T extends UIObject, H extends UIObject> extends AbstractMixin<T> implements HasReadOnly {
+public class ReadOnlyMixin<T extends UIObject & HasReadOnly, H extends UIObject> extends AbstractMixin<T>
+        implements HasReadOnly {
 
     private H target;
 
@@ -40,11 +41,15 @@ public class ReadOnlyMixin<T extends UIObject, H extends UIObject> extends Abstr
     public void setReadOnly(boolean readOnly) {
         uiObject.removeStyleName(CssName.READ_ONLY);
         if (readOnly) {
+            if (uiObject instanceof HasEnabled) {
+                ((HasEnabled) uiObject).setEnabled(false);
+            }
             uiObject.addStyleName(CssName.READ_ONLY);
-            target.getElement().setAttribute("disabled", "");
             target.getElement().setAttribute("readonly", "");
         } else {
-            target.getElement().removeAttribute("disabled");
+            if (uiObject instanceof HasEnabled) {
+                ((HasEnabled) uiObject).setEnabled(true);
+            }
             target.getElement().removeAttribute("readonly");
             uiObject.removeStyleName(CssName.READ_ONLY);
         }
@@ -60,8 +65,8 @@ public class ReadOnlyMixin<T extends UIObject, H extends UIObject> extends Abstr
         uiObject.removeStyleName(CssName.READ_ONLY_TOGGLE);
         if (value) {
             uiObject.addStyleName(CssName.READ_ONLY_TOGGLE);
-            if (uiObject instanceof MaterialWidget) {
-                ((MaterialWidget) uiObject).setEnabled(true);
+            if (uiObject instanceof HasEnabled && !((HasEnabled) uiObject).isEnabled()) {
+                ((HasEnabled) uiObject).setEnabled(true);
             }
             $(target).off("mousedown");
             $(uiObject).mousedown((e, param1) -> {

@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public interface HasIcon {
 
     /**
      * Set Material Design icon.
-     * {@link https://www.google.com/design/icons/}
+     * @see <a href="//www.google.com/design/icons/">Material Design Icons</a>
      */
     void setIconType(IconType iconType);
 
@@ -58,6 +58,11 @@ public interface HasIcon {
      * Sets the color of the icon.
      */
     void setIconColor(Color iconColor);
+
+    /**
+     * Get the color of the icon
+     */
+    Color getIconColor();
 
     /**
      * Make the icon prefix in its container.

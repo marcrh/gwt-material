@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ package gwt.material.design.client.ui;
 import com.google.gwt.dom.client.Document;
 import gwt.material.design.client.base.HasHref;
 import gwt.material.design.client.base.MaterialWidget;
+import gwt.material.design.client.base.mixin.HrefMixin;
 import gwt.material.design.client.constants.CssName;
 
 //@formatter:off
@@ -40,23 +41,32 @@ public class MaterialCollectionSecondary extends MaterialWidget implements HasHr
         super(Document.get().createAnchorElement(), CssName.SECONDARY_CONTENT);
     }
 
+    private HrefMixin<MaterialCollectionSecondary> hrefMixin;
+
     @Override
     public String getHref() {
-        return getElement().getAttribute("href");
+        return getHrefMixin().getHref();
     }
 
     @Override
     public void setHref(String href) {
-        getElement().setAttribute("href", href);
+        getHrefMixin().setHref(href);
     }
 
     @Override
     public void setTarget(String target) {
-        getElement().setAttribute("target", target);
+        getHrefMixin().setTarget(target);
     }
 
     @Override
     public String getTarget() {
-        return getElement().getAttribute("target");
+        return getHrefMixin().getTarget();
+    }
+
+    public HrefMixin<MaterialCollectionSecondary> getHrefMixin() {
+        if (hrefMixin == null) {
+            hrefMixin = new HrefMixin<>(this);
+        }
+        return hrefMixin;
     }
 }

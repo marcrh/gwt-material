@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,11 @@ public class LetterMixin<T extends MaterialWidget & HasLetter> extends AbstractM
     }
 
     @Override
+    public Span getLetterLabel() {
+        return span;
+    }
+
+    @Override
     public void setLetterColor(Color letterColor) {
         span.setTextColor(letterColor);
     }
@@ -53,9 +58,5 @@ public class LetterMixin<T extends MaterialWidget & HasLetter> extends AbstractM
     @Override
     public void setLetterBackgroundColor(Color letterBackgroundColor) {
         span.setBackgroundColor(letterBackgroundColor);
-    }
-
-    public Span getSpan() {
-        return span;
     }
 }

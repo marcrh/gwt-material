@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.google.gwt.i18n.client.HasDirection.Direction;
 import com.google.gwt.i18n.shared.DirectionEstimator;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.ListBox;
 import gwt.material.design.client.base.BaseCheckBox;
 import gwt.material.design.client.base.HasGrid;
 import gwt.material.design.client.base.mixin.GridMixin;
@@ -54,15 +53,17 @@ import gwt.material.design.client.constants.CssName;
  *
  * @author kevzlou7979
  * @author Ben Dol
- * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#forms">CheckBox</a>
+ * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#checkbox">CheckBox</a>
  * @see <a href="https://material.io/guidelines/components/selection-controls.html#selection-controls-checkbox">Material Design Specification</a>
  */
 public class MaterialCheckBox extends BaseCheckBox implements HasGrid {
 
     private Object object;
 
-    private final GridMixin<MaterialCheckBox> gridMixin = new GridMixin<>(this);
-    private ToggleStyleMixin<MaterialCheckBox> toggleOldMixin = new ToggleStyleMixin<>(this, CssName.OLD_CHECKBOX);
+    private GridMixin<MaterialCheckBox> gridMixin;
+    private ToggleStyleMixin<MaterialCheckBox> toggleOldMixin;
+
+    private CheckBoxType type;
 
     public MaterialCheckBox() {
         super();
@@ -105,6 +106,23 @@ public class MaterialCheckBox extends BaseCheckBox implements HasGrid {
         setType(type);
     }
 
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+
+        getElement().getStyle().setDisplay(isVisible() ? Display.BLOCK : Display.NONE);
+    }
+
+    @Override
+    public void setGrid(String grid) {
+        getGridMixin().setGrid(grid);
+    }
+
+    @Override
+    public void setOffset(String offset) {
+        getGridMixin().setOffset(offset);
+    }
+
     public Object getObject() {
         return object;
     }
@@ -113,28 +131,22 @@ public class MaterialCheckBox extends BaseCheckBox implements HasGrid {
         this.object = object;
     }
 
-    @Override
-    protected void onLoad() {
-        super.onLoad();
-
-        getElement().getStyle().setDisplay(isVisible() ? Display.BLOCK : Display.NONE);
-    }
-
-    public boolean isOld() {
-        return toggleOldMixin.isOn();
-    }
-
     /**
      * Used the old checkbox.
      */
     public void setOld(boolean old) {
-        toggleOldMixin.setOn(old);
+        getToggleOldMixin().setOn(old);
+    }
+
+    public boolean isOld() {
+        return getToggleOldMixin().isOn();
     }
 
     /**
      * Setting the type of Checkbox.
      */
     public void setType(CheckBoxType type) {
+        this.type = type;
         switch (type) {
             case FILLED:
                 Element input = DOM.getChild(getElement(), 0);
@@ -149,13 +161,21 @@ public class MaterialCheckBox extends BaseCheckBox implements HasGrid {
         }
     }
 
-    @Override
-    public void setGrid(String grid) {
-        gridMixin.setGrid(grid);
+    public CheckBoxType getType() {
+        return type;
     }
 
-    @Override
-    public void setOffset(String offset) {
-        gridMixin.setOffset(offset);
+    public GridMixin<MaterialCheckBox> getGridMixin() {
+        if (gridMixin == null) {
+            gridMixin = new GridMixin<>(this);
+        }
+        return gridMixin;
+    }
+
+    public ToggleStyleMixin<MaterialCheckBox> getToggleOldMixin() {
+        if (toggleOldMixin == null) {
+            toggleOldMixin = new ToggleStyleMixin<>(this, CssName.OLD_CHECKBOX);
+        }
+        return toggleOldMixin;
     }
 }

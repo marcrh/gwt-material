@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 package gwt.material.design.client.ui;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.ui.HasWidgets;
@@ -31,6 +32,8 @@ import gwt.material.design.client.constants.CssName;
 import gwt.material.design.client.constants.Display;
 import gwt.material.design.client.constants.ProgressType;
 import gwt.material.design.client.constants.WavesType;
+import gwt.material.design.client.events.CollapseEvent;
+import gwt.material.design.client.events.ExpandEvent;
 import gwt.material.design.client.ui.MaterialCollapsible.HasCollapsibleParent;
 
 //@formatter:off
@@ -47,23 +50,18 @@ import gwt.material.design.client.ui.MaterialCollapsible.HasCollapsibleParent;
 public class MaterialCollapsibleItem extends AbstractButton implements HasWidgets, HasCollapsibleParent,
         HasProgress, HasActive {
 
+    private boolean active;
     private MaterialCollapsible parent;
     private MaterialCollapsibleBody body;
     private MaterialCollapsibleHeader header;
 
-    private final ProgressMixin<MaterialCollapsibleItem> progressMixin = new ProgressMixin<>(this);
-    private boolean active;
+    private ProgressMixin<MaterialCollapsibleItem> progressMixin;
 
     /**
      * Creates an empty collapsible item.
      */
     public MaterialCollapsibleItem() {
         super();
-    }
-
-    @Override
-    protected Element createElement() {
-        return Document.get().createLIElement();
     }
 
     /**
@@ -77,11 +75,17 @@ public class MaterialCollapsibleItem extends AbstractButton implements HasWidget
     }
 
     @Override
+    protected Element createElement() {
+        return Document.get().createLIElement();
+    }
+
+    @Override
     public void add(Widget child) {
         if (child instanceof MaterialCollapsibleBody) {
             body = (MaterialCollapsibleBody) child;
         } else if (child instanceof MaterialCollapsibleHeader) {
             header = (MaterialCollapsibleHeader) child;
+            header.addClickHandler(clickEvent -> fireCollapsibleHandler());
         }
         super.add(child);
     }
@@ -100,6 +104,89 @@ public class MaterialCollapsibleItem extends AbstractButton implements HasWidget
         return super.remove(w);
     }
 
+    /**
+     * Expand the body panel.
+     */
+    public void expand() {
+        if (body != null) {
+            setActive(true);
+        }
+    }
+
+    /**
+     * Collapse the cody panel.
+     */
+    public void collapse() {
+        if (body != null) {
+            setActive(false);
+        }
+    }
+
+    @Override
+    public void showProgress(ProgressType type) {
+        getProgressMixin().showProgress(type);
+    }
+
+    @Override
+    public void setPercent(double percent) {
+        getProgressMixin().setPercent(percent);
+    }
+
+    @Override
+    public void hideProgress() {
+        getProgressMixin().hideProgress();
+    }
+
+    @Override
+    public MaterialProgress getProgress() {
+        return getProgressMixin().getProgress();
+    }
+
+    /**
+     * Make this item active.
+     */
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
+
+        if (parent != null) {
+            fireCollapsibleHandler();
+            removeStyleName(CssName.ACTIVE);
+            if (header != null) {
+                header.removeStyleName(CssName.ACTIVE);
+            }
+            if (active) {
+                if (parent != null) {
+                    parent.clearActive();
+                }
+                addStyleName(CssName.ACTIVE);
+
+                if (header != null) {
+                    header.addStyleName(CssName.ACTIVE);
+                }
+            }
+
+            if (body != null) {
+                body.setDisplay(active ? Display.BLOCK : Display.NONE);
+            }
+        } else {
+            GWT.log("Please make sure that the Collapsible parent is attached or existed.", new IllegalStateException());
+        }
+    }
+
+    protected void fireCollapsibleHandler() {
+        if (getElement().hasClassName(CssName.ACTIVE)) {
+            parent.fireEvent(new CollapseEvent<>(this));
+        } else {
+            parent.fireEvent(new ExpandEvent<>(this));
+        }
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
     public void setParent(MaterialCollapsible parent) {
         this.parent = parent;
 
@@ -114,71 +201,7 @@ public class MaterialCollapsibleItem extends AbstractButton implements HasWidget
     public void setWaves(WavesType waves) {
         super.setWaves(waves);
 
-        // Waves change to inline block.
-        // We need to retain 'block' display
         setDisplay(Display.BLOCK);
-    }
-
-    /**
-     * Expand the body panel.
-     */
-    public void expand() {
-        if (body != null) {
-            setActive(true);
-            body.setDisplay(Display.BLOCK);
-        }
-    }
-
-    /**
-     * Collapse the cody panel.
-     */
-    public void collapse() {
-        if (body != null) {
-            setActive(false);
-            body.setDisplay(Display.NONE);
-        }
-    }
-
-    /**
-     * Make this item active.
-     */
-    @Override
-    public void setActive(boolean active) {
-        this.active = active;
-        removeStyleName(CssName.ACTIVE);
-        if (header != null) {
-            header.removeStyleName(CssName.ACTIVE);
-        }
-        if (active) {
-            if (parent != null) {
-                parent.clearActive();
-            }
-            addStyleName(CssName.ACTIVE);
-
-            if (header != null) {
-                header.addStyleName(CssName.ACTIVE);
-            }
-        }
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
-    }
-
-    @Override
-    public void showProgress(ProgressType type) {
-        progressMixin.showProgress(type);
-    }
-
-    @Override
-    public void setPercent(double percent) {
-        progressMixin.setPercent(percent);
-    }
-
-    @Override
-    public void hideProgress() {
-        progressMixin.hideProgress();
     }
 
     public MaterialCollapsibleBody getBody() {
@@ -187,5 +210,12 @@ public class MaterialCollapsibleItem extends AbstractButton implements HasWidget
 
     public MaterialCollapsibleHeader getHeader() {
         return header;
+    }
+
+    protected ProgressMixin<MaterialCollapsibleItem> getProgressMixin() {
+        if (progressMixin == null) {
+            progressMixin = new ProgressMixin<>(this);
+        }
+        return progressMixin;
     }
 }

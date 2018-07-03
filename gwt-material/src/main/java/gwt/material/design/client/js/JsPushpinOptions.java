@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import jsinterop.annotations.JsType;
 public class JsPushpinOptions {
 
     @JsProperty
-    public Object top;
+    public Double top;
 
     @JsProperty
-    public Object offset;
+    public Double offset;
 
     @JsProperty
-    public Object bottom;
+    public Double bottom;
 
 }

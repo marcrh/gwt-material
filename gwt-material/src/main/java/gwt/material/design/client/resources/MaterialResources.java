@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,6 @@ public interface MaterialResources extends ClientBundle {
     @Source("js/materialize-0.97.5.min.js")
     TextResource materializeJs();
 
-    @Source("js/push.min.js")
-    TextResource pushNotificationJs();
+    @Source("js/app-installer.min.js")
+    TextResource appInstallerJs();
 }

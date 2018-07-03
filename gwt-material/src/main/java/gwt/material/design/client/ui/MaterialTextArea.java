@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,9 @@ package gwt.material.design.client.ui;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.TextArea;
 import gwt.material.design.client.constants.CssName;
 import gwt.material.design.client.constants.InputType;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static gwt.material.design.client.js.JsMaterialElement.$;
 
@@ -37,13 +33,13 @@ import static gwt.material.design.client.js.JsMaterialElement.$;
  * Material Text Area represents a multiple line text box where users can define comment, detail and etc.
  * <h3>UiBinder Usage:</h3>
  * <pre>
- * {@code <m:MaterialTextArea placeholder="Your Comment" />
+ * {@code <m:MaterialTextArea placeholder="Your Comment" /> }
  * </pre>
  *
  * @author kevzlou7979
  * @author Ben Dol
  * @author paulux84
- * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#forms">Material TextArea</a>
+ * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#textfields">Material TextArea</a>
  * @see <a href="https://material.io/guidelines/components/text-fields.html#">Material Design Specification</a>
  */
 //@formatter:on
@@ -54,13 +50,12 @@ public class MaterialTextArea extends MaterialValueBox<String> {
     }
 
     private ResizeRule resizeRule = ResizeRule.NONE;
-    private Set<HandlerRegistration> resizeHandlers;
-    private HandlerRegistration attachHandler;
     private Integer originalHeight;
 
     public MaterialTextArea() {
         super(new TextArea());
-        build();
+        setType(InputType.TEXT);
+        valueBoxBase.setStyleName(CssName.MATERIALIZE_TEXTAREA);
     }
 
     public MaterialTextArea(String placeholder) {
@@ -74,9 +69,26 @@ public class MaterialTextArea extends MaterialValueBox<String> {
     }
 
     @Override
-    protected void build() {
-        setType(InputType.TEXT);
-        valueBoxBase.setStyleName(CssName.MATERIALIZE_TEXTAREA);
+    protected void onLoad() {
+        super.onLoad();
+
+        setResizeRule(resizeRule);
+    }
+
+    public void triggerAutoResize() {
+        if (!valueBoxBase.isAttached()) {
+            registerHandler(valueBoxBase.addAttachHandler(event -> {
+                if (event.isAttached()) {
+                    triggerAutoResize(valueBoxBase.getElement());
+                }
+            }));
+        } else {
+            triggerAutoResize(valueBoxBase.getElement());
+        }
+    }
+
+    protected void triggerAutoResize(Element element) {
+        Scheduler.get().scheduleDeferred(() -> $(element).trigger("autoresize", null));
     }
 
     @Override
@@ -88,48 +100,23 @@ public class MaterialTextArea extends MaterialValueBox<String> {
         }
     }
 
-    public void triggerAutoResize() {
-        if (!valueBoxBase.isAttached()) {
-            if (attachHandler == null) {
-                attachHandler = valueBoxBase.addAttachHandler(event -> {
-                    if (event.isAttached()) {
-                        triggerAutoResize(valueBoxBase.getElement());
-                    }
-                });
-            }
-        } else {
-            triggerAutoResize(valueBoxBase.getElement());
-        }
-    }
-
-    protected void triggerAutoResize(Element element) {
-        Scheduler.get().scheduleDeferred(() -> $(element).trigger("autoresize", null));
-    }
-
-    public ResizeRule getResizeRule() {
-        return resizeRule;
-    }
-
     public void setResizeRule(ResizeRule resizeRule) {
         this.resizeRule = resizeRule;
-        if (resizeHandlers == null) {
-            resizeHandlers = new HashSet<>();
-        }
-        removeResizeHandlers();
 
         switch (resizeRule) {
             case AUTO:
-                resizeHandlers.add(valueBoxBase.addValueChangeHandler(event -> triggerAutoResize()));
+                registerHandler(valueBoxBase.addValueChangeHandler(event -> triggerAutoResize()));
                 break;
             case FOCUS:
-                resizeHandlers.add(addFocusHandler(event -> {
+                registerHandler(addFocusHandler(event -> {
                     if (originalHeight == null) {
                         originalHeight = valueBoxBase.getElement().getClientHeight();
                     }
                     triggerAutoResize();
                 }));
 
-                resizeHandlers.add(addBlurHandler(event -> {
+
+                registerHandler(addBlurHandler(event -> {
                     if (originalHeight != null) {
                         valueBoxBase.setHeight(originalHeight + "px");
                     }
@@ -138,9 +125,7 @@ public class MaterialTextArea extends MaterialValueBox<String> {
         }
     }
 
-    protected void removeResizeHandlers() {
-        if (resizeHandlers != null) {
-            resizeHandlers.forEach(HandlerRegistration::removeHandler);
-        }
+    public ResizeRule getResizeRule() {
+        return resizeRule;
     }
 }

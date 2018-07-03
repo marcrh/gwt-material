@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.HasValue;
-import gwt.material.design.client.base.HasError;
-import gwt.material.design.client.base.MaterialWidget;
+import gwt.material.design.client.base.AbstractValueWidget;
 import gwt.material.design.client.base.mixin.ErrorMixin;
 import gwt.material.design.client.constants.CssName;
 import gwt.material.design.client.constants.InputType;
@@ -46,11 +45,11 @@ import gwt.material.design.client.ui.html.Span;
  * </pre>
  *
  * @author kevzlou7979
- * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#forms">Material Switch</a>
+ * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#switches">Material Switch</a>
  * @see <a href="https://material.io/guidelines/components/selection-controls.html#selection-controls-switch">Material Design Specification</a>
  */
 //@formatter:on
-public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>, HasError {
+public class MaterialSwitch extends AbstractValueWidget<Boolean> implements HasValue<Boolean> {
 
     private MaterialInput input = new MaterialInput();
     private MaterialLabel errorLabel = new MaterialLabel();
@@ -58,9 +57,8 @@ public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>,
     private Span span = new Span();
     private Span onLabel = new Span();
     private Span offLabel = new Span();
-    private HandlerRegistration clickHandler;
 
-    private final ErrorMixin<MaterialSwitch, MaterialLabel> errorMixin = new ErrorMixin<>(this, errorLabel, null);
+    private ErrorMixin<AbstractValueWidget, MaterialLabel> errorMixin;
 
     /**
      * Creates a switch element
@@ -69,8 +67,6 @@ public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>,
         super(Document.get().createDivElement(), CssName.SWITCH);
         span.setStyleName(CssName.LEVER);
         input.setType(InputType.CHECKBOX);
-
-        addClickHandler(event -> setValue(!getValue(), true));
     }
 
     public MaterialSwitch(String onLabel, String offLabel) {
@@ -93,7 +89,9 @@ public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>,
     }
 
     @Override
-    protected void initialize() {
+    protected void onLoad() {
+        super.onLoad();
+
         label.add(offLabel);
         label.add(input);
         label.add(span);
@@ -105,12 +103,12 @@ public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>,
         // Register click handler here in order to have it at first position
         // and therefore it will deal with clicks as first and setup the value
         // right before others get notified.
-        if (clickHandler == null) {
-            clickHandler = addClickHandler(event -> {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-        }
+        registerHandler(addClickHandler(event -> {
+            event.preventDefault();
+            event.stopPropagation();
+        }));
+
+        registerHandler(addClickHandler(event -> setValue(!getValue(), true)));
     }
 
     @Override
@@ -151,8 +149,10 @@ public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>,
     }
 
     @Override
-    public HandlerRegistration addValueChangeHandler(final ValueChangeHandler<Boolean> handler) {
-        return addHandler(handler, ValueChangeEvent.getType());
+    public void reset() {
+        super.reset();
+
+        setValue(false);
     }
 
     /**
@@ -186,7 +186,6 @@ public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>,
     /**
      * @return the label
      */
-    @Deprecated
     public Label getLabel() {
         return label;
     }
@@ -201,22 +200,22 @@ public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>,
 
     @Override
     public void setError(String error) {
-        errorMixin.setError(error);
+        getErrorMixin().setError(error);
     }
 
     @Override
     public void setSuccess(String success) {
-        errorMixin.setSuccess(success);
+        getErrorMixin().setSuccess(success);
     }
 
     @Override
     public void setHelperText(String helperText) {
-        errorMixin.setHelperText(helperText);
+        getErrorMixin().setHelperText(helperText);
     }
 
     @Override
     public void clearErrorOrSuccess() {
-        errorMixin.clearErrorOrSuccess();
+        getErrorMixin().clearErrorOrSuccess();
     }
 
     /**
@@ -243,5 +242,18 @@ public class MaterialSwitch extends MaterialWidget implements HasValue<Boolean>,
 
     public Span getOffLabel() {
         return offLabel;
+    }
+
+    @Override
+    public HandlerRegistration addValueChangeHandler(final ValueChangeHandler<Boolean> handler) {
+        return addHandler(handler, ValueChangeEvent.getType());
+    }
+
+    @Override
+    protected ErrorMixin<AbstractValueWidget, MaterialLabel> getErrorMixin() {
+        if (errorMixin == null) {
+            errorMixin = new ErrorMixin<>(this, errorLabel, null);
+        }
+        return errorMixin;
     }
 }

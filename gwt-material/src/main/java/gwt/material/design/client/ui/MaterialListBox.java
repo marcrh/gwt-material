@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ import gwt.material.design.client.ui.html.Option;
  *
  * @author kevzlou7979
  * @author Ben Dol
- * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#forms">Material ListBox</a>
+ * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#listbox">Material ListBox</a>
  * @see <a href="https://material.io/guidelines/components/menus.html">Material Design Specification</a>
  */
 //@formatter:on
@@ -57,4 +57,24 @@ public class MaterialListBox extends MaterialListValueBox<String> {
         getSelectElement().add(OptionElement.as(option.getElement()), null);
         values.add(option.getValue());
     }
+
+    @Override
+    public String getValue() {
+        String value = super.getValue();
+        if (value == null) {
+            return BLANK_VALUE_TEXT;
+        } else {
+            return value;
+        }
+    }
+
+    @Override
+    public void setValue(String value) {
+        if (BLANK_VALUE_TEXT.equals(value)) {
+            super.setValue(null);
+        } else {
+            super.setValue(value);
+        }
+    }
+
 }

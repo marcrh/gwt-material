@@ -20,6 +20,7 @@
 package gwt.material.design.client.ui;
 
 import gwt.material.design.client.base.AbstractButton;
+import gwt.material.design.client.base.HasNoSideNavSelection;
 import gwt.material.design.client.base.mixin.ActivatesMixin;
 import gwt.material.design.client.constants.CssName;
 
@@ -32,7 +33,7 @@ import gwt.material.design.client.constants.CssName;
  * <p>
  * <pre>
  * {@code
- * <m:MaterialNavMenu iconType="IconType.MENU" activates="mySideNav"/>
+ * <m:MaterialNavMenu iconType="MENU" activates="mySideNav"/>
  * }
  * </pre>
  * </p>
@@ -43,9 +44,9 @@ import gwt.material.design.client.constants.CssName;
  * @see <a href="https://material.io/guidelines/components/toolbars.html#">Material Design Specification</a>
  */
 //@formatter:on
-public class MaterialNavMenu extends MaterialLink {
+public class MaterialNavMenu extends MaterialLink implements HasNoSideNavSelection {
 
-    private final ActivatesMixin<AbstractButton> activatesMixin = new ActivatesMixin<>(this);
+    private ActivatesMixin<AbstractButton> activatesMixin;
 
     public MaterialNavMenu() {
         setInitialClasses(CssName.BUTTON_COLLAPSE);
@@ -53,6 +54,13 @@ public class MaterialNavMenu extends MaterialLink {
 
     @Override
     public void setActivates(String activates) {
-        activatesMixin.setActivates(activates);
+        getActivatesMixin().setActivates(activates);
+    }
+
+    protected ActivatesMixin<AbstractButton> getActivatesMixin() {
+        if (activatesMixin == null) {
+            activatesMixin = new ActivatesMixin<>(this);
+        }
+        return activatesMixin;
     }
 }

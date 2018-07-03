@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,16 @@
 package gwt.material.design.client.ui;
 
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.logical.shared.HasSelectionHandlers;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import gwt.material.design.client.base.HasActiveParent;
+import gwt.material.design.client.base.HasClearActiveHandler;
 import gwt.material.design.client.base.MaterialWidget;
 import gwt.material.design.client.base.helper.UiHelper;
 import gwt.material.design.client.constants.CssName;
@@ -94,16 +100,45 @@ import gwt.material.design.client.ui.html.ListItem;
  * @see <a href="https://material.io/guidelines/components/lists-controls.html#lists-controls-types-of-menu-controls">Material Design Specification</a>
  */
 //@formatter:on
-public class MaterialCollection extends MaterialWidget implements HasActiveParent {
+public class MaterialCollection extends MaterialWidget
+        implements HasActiveParent, HasClearActiveHandler, HasSelectionHandlers<MaterialCollectionItem> {
 
-    private Heading headerLabel = new Heading(HeadingSize.H4);
     private int index;
+    private boolean selectable;
+    private Heading headerLabel = new Heading(HeadingSize.H4);
+    private HandlerRegistration selectHandler;
 
     /**
      * Creates an empty collection component.
      */
     public MaterialCollection() {
         super(Document.get().createULElement(), CssName.COLLECTION);
+    }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+
+        if (selectable) {
+            selectHandler = registerHandler(addSelectionHandler(selectionEvent -> {
+                clearActive();
+                selectionEvent.getSelectedItem().setActive(true);
+            }));
+
+            for (Widget child : getChildren()) {
+                if (child instanceof MaterialCollectionItem) {
+                    child.getElement().getStyle().setCursor(Style.Cursor.POINTER);
+                    ((MaterialCollectionItem) child).addClickHandler(clickEvent -> SelectionEvent.fire(MaterialCollection.this, (MaterialCollectionItem) child));
+                }
+            }
+        } else {
+            removeHandler(selectHandler);
+        }
+    }
+
+    @Override
+    public void clearActive() {
+        clearActiveClass(this);
     }
 
     /**
@@ -150,16 +185,25 @@ public class MaterialCollection extends MaterialWidget implements HasActiveParen
         }
     }
 
-    @Override
-    public void clearActive() {
-        clearActiveClass(this);
+    public Heading getHeaderLabel() {
+        return headerLabel;
     }
 
+    public boolean isSelectable() {
+        return selectable;
+    }
+
+    public void setSelectable(boolean selectable) {
+        this.selectable = selectable;
+    }
+
+    @Override
     public HandlerRegistration addClearActiveHandler(final ClearActiveEvent.ClearActiveHandler handler) {
         return addHandler(handler, ClearActiveEvent.TYPE);
     }
 
-    public Heading getHeaderLabel() {
-        return headerLabel;
+    @Override
+    public HandlerRegistration addSelectionHandler(SelectionHandler<MaterialCollectionItem> selectionHandler) {
+        return addHandler(selectionHandler, SelectionEvent.getType());
     }
 }

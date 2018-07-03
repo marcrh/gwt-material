@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,9 @@ public class ErrorMixin<T extends UIObject & HasError, H extends UIObject & HasT
         if (lblPlaceholder != null) {
             lblPlaceholder.removeStyleName("green-text");
             lblPlaceholder.addStyleName("red-text");
+            if (error != null && !error.isEmpty()) {
+                lblPlaceholder.addStyleName(CssName.ACTIVE);
+            }
         }
     }
 
@@ -90,6 +93,9 @@ public class ErrorMixin<T extends UIObject & HasError, H extends UIObject & HasT
         if (lblPlaceholder != null) {
             lblPlaceholder.removeStyleName("red-text");
             lblPlaceholder.addStyleName("green-text");
+            if (success != null && !success.isEmpty()) {
+                lblPlaceholder.addStyleName(CssName.ACTIVE);
+            }
         }
     }
 

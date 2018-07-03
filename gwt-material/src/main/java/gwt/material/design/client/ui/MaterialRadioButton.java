@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import gwt.material.design.client.constants.RadioButtonType;
  * </pre>
  *
  * @author kevzlou7979
- * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#forms">Material Radio Button</a>
+ * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#radiobutton">Material Radio Button</a>
  * @see <a href="https://material.io/guidelines/components/selection-controls.html#selection-controls-radio-button">Material Design Specification</a>
  */
 public class MaterialRadioButton extends RadioButton implements HasType<RadioButtonType> {
@@ -90,16 +90,18 @@ public class MaterialRadioButton extends RadioButton implements HasType<RadioBut
 
     @Override
     public RadioButtonType getType() {
-        return typeMixin.getType();
+        return getTypeMixin().getType();
     }
 
     @Override
     public void setType(RadioButtonType type) {
+        getTypeMixin().setType(type);
+    }
+
+    protected CssTypeMixin<RadioButtonType, TypeWidget<RadioButtonType>> getTypeMixin() {
         if (typeMixin == null) {
-            // Since the input element handles the type styles,
-            // we need to override the mixin.
             typeMixin = new CssTypeMixin<>(new TypeWidget<>(DOM.getChild(getElement(), 0)));
         }
-        typeMixin.setType(type);
+        return typeMixin;
     }
 }

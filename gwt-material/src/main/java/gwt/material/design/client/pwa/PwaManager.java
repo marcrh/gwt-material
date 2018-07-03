@@ -22,9 +22,14 @@ package gwt.material.design.client.pwa;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import gwt.material.design.jscore.client.api.Navigator;
-import gwt.material.design.jscore.client.api.serviceworker.ServiceWorker;
-import gwt.material.design.jscore.client.api.serviceworker.ServiceWorkerRegistration;
+import gwt.material.design.client.base.JsLoader;
+import gwt.material.design.client.js.Navigator;
+import gwt.material.design.client.pwa.base.PwaFeature;
+import gwt.material.design.client.pwa.manifest.WebManifestManager;
+import gwt.material.design.client.pwa.manifest.js.AppInstaller;
+import gwt.material.design.client.pwa.serviceworker.ServiceWorkerManager;
+import gwt.material.design.client.pwa.theme.BrowserThemeManager;
+import gwt.material.design.jquery.client.api.Functions;
 
 //@formatter:off
 
@@ -43,129 +48,119 @@ import gwt.material.design.jscore.client.api.serviceworker.ServiceWorkerRegistra
  * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#pwa">Progressive Web Apps</a>
  */
 //@formatter:on
-public class PwaManager implements HasPwaFeature {
+public class PwaManager implements JsLoader {
 
     private static PwaManager instance = GWT.create(PwaManager.class);
-    public static boolean initialized = false;
 
-    private Element headElement, manifestElement, themeColorElement;
+    private Element headElement;
+
+    private ServiceWorkerManager serviceWorkerManager;
+    private WebManifestManager webManifestManager;
+    private BrowserThemeManager browserThemeManager;
+    private AppInstaller appInstaller;
 
     @Override
     public void load() {
-        if (!initialized) {
-            headElement = Document.get().getElementsByTagName("head").getItem(0);
-            String pwaManifest = System.getProperty("manifest");
-            if (pwaManifest != null && !pwaManifest.isEmpty()) {
-                setupManifest(pwaManifest);
-            }
+        loadFeature(getServiceWorkerManager());
+        loadFeature(getBrowserThemeManager());
+        loadFeature(getWebManifestManager());
+    }
 
-            String serviceWorker = System.getProperty("serviceWorker");
-            if (serviceWorker != null && !serviceWorker.isEmpty()) {
-                setupServiceWorker(serviceWorker);
-            }
-
-            String metaThemeColor = System.getProperty("metaThemeColor");
-            if (metaThemeColor != null && !metaThemeColor.isEmpty()) {
-                setupMetaThemeColor(metaThemeColor);
-            }
-            initialized = true;
+    protected void loadFeature(PwaFeature feature) {
+        if (feature != null) {
+            feature.load();
         }
     }
 
     @Override
+    public void unload() {
+        unloadFeature(getServiceWorkerManager());
+        unloadFeature(getWebManifestManager());
+        unloadFeature(getBrowserThemeManager());
+    }
+
+    protected void unloadFeature(PwaFeature feature) {
+        if (feature != null) {
+            feature.unload();
+        }
+    }
+
     public void reload() {
-        unLoad();
+        unload();
         load();
     }
 
-    @Override
-    public void unLoad() {
-        // Unregister the manifest
-        if (manifestElement != null) {
-            manifestElement.removeFromParent();
+    /**
+     * Load the service worker manager in order to register the service-worker.js
+     * and start up the caching strategy.
+     */
+    public PwaManager setServiceWorker(ServiceWorkerManager serviceWorkerManager) {
+        this.serviceWorkerManager = serviceWorkerManager;
+        return this;
+    }
+
+    /**
+     * This will load {@link ServiceWorkerManager} providing the service worker
+     * url to initialize the service worker.
+     */
+    public PwaManager setServiceWorker(String serviceWorkerUrl) {
+        this.serviceWorkerManager = new ServiceWorkerManager(serviceWorkerUrl);
+        return this;
+    }
+
+    /**
+     * Load the manifest file provided in the parameter to specify
+     * app's Installable Feature on native apps browser.
+     */
+    public PwaManager setWebManifest(String manifestUrl) {
+        webManifestManager = new WebManifestManager(this, manifestUrl);
+        return this;
+    }
+
+    /**
+     * Load the Browser theme color for Site's UI Look
+     */
+    public PwaManager setThemeColor(String themeColor) {
+        browserThemeManager = new BrowserThemeManager(this, themeColor);
+        return this;
+    }
+
+    /**
+     * Will prompt a user the "Add to Homescreen" feature
+     *
+     * @param callback A callback function after the method has been executed.
+     */
+    public void installApp(Functions.Func callback) {
+        if (isPwaSupported()) {
+            appInstaller = new AppInstaller(callback);
+            appInstaller.prompt();
         }
-        // Unregister the theme color
-        if (themeColorElement != null) {
-            themeColorElement.removeFromParent();
-        }
-
-        // Unregister the service worker
-        unRegisterServiceWorker();
-        initialized = false;
-    }
-
-    @Override
-    public void setupManifest(String manifestUrl) {
-        manifestElement = Document.get().createLinkElement();
-        manifestElement.setAttribute("rel", "manifest");
-        manifestElement.setAttribute("href", manifestUrl);
-        headElement.appendChild(manifestElement);
-    }
-
-    @Override
-    public void setupMetaThemeColor(String themeColor) {
-        themeColorElement = Document.get().createMetaElement();
-        themeColorElement.setAttribute("name", "theme-color");
-        themeColorElement.setAttribute("content", themeColor);
-        headElement.appendChild(themeColorElement);
-    }
-
-    @Override
-    public void setupServiceWorker(String serviceWorkerUrl) {
-        if (Navigator.serviceWorker != null) {
-            Navigator.serviceWorker.register(serviceWorkerUrl)
-                    .then(arg -> {
-                        GWT.log("Registered service worker successfully");
-                        return null;
-                    });
-        } else {
-            GWT.log("Service worker is not supported by this browser.");
-        }
-    }
-
-    @Override
-    public void unRegisterServiceWorker() {
-        if (Navigator.serviceWorker != null) {
-            Navigator.serviceWorker.getRegistration().then(obj -> {
-                ServiceWorkerRegistration registration = (ServiceWorkerRegistration) obj;
-                if (registration != null) {
-                    registration.unregister();
-                    GWT.log("Successfully unregistered Service Worker");
-                } else {
-                    GWT.log("There's no Service worker that is registered.");
-                }
-                return null;
-            });
-        }
-    }
-
-    @Override
-    public void updateServiceWorker() {
-        if (Navigator.serviceWorker != null) {
-            Navigator.serviceWorker.getRegistration().then(obj -> {
-                ServiceWorkerRegistration registration = (ServiceWorkerRegistration) obj;
-                if (registration != null) {
-                    registration.update();
-                    GWT.log("Successfully updated Service Worker");
-                } else {
-                    GWT.log("There's no Service worker that is registered.");
-                }
-                return null;
-            });
-        }
-    }
-
-    @Override
-    public ServiceWorker getServiceWorker() {
-        return Navigator.serviceWorker.controller;
-    }
-
-    @Override
-    public boolean isOnline() {
-        return Navigator.onLine;
     }
 
     public static PwaManager getInstance() {
         return instance;
+    }
+
+    public Element getHeadElement() {
+        if (headElement == null) {
+            headElement = Document.get().getElementsByTagName("head").getItem(0);
+        }
+        return headElement;
+    }
+
+    public static boolean isPwaSupported() {
+        return Navigator.serviceWorker != null;
+    }
+
+    public BrowserThemeManager getBrowserThemeManager() {
+        return browserThemeManager;
+    }
+
+    public WebManifestManager getWebManifestManager() {
+        return webManifestManager;
+    }
+
+    public ServiceWorkerManager getServiceWorkerManager() {
+        return serviceWorkerManager;
     }
 }

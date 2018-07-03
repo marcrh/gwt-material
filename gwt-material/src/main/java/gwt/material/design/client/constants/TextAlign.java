@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public enum TextAlign implements Style.HasCssName {
 
     private final String cssClass;
 
-    private TextAlign(final String cssClass) {
+    TextAlign(final String cssClass) {
         this.cssClass = cssClass;
     }
 

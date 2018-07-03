@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,18 @@ public class TitleMixin<T extends MaterialWidget & HasTitle> extends AbstractMix
     }
 
     @Override
+    public String getTitle() {
+        return titleElem.getText();
+    }
+
+    @Override
     public void setDescription(String description) {
         titleElem.setStyleName(CssName.TITLE);
         descElem.setText(description);
+    }
+
+    @Override
+    public String getDescription() {
+        return descElem.getText();
     }
 }

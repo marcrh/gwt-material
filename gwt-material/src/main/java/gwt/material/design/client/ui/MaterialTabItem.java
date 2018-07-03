@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,8 +65,9 @@ public class MaterialTabItem extends ListItem {
         for (Widget child : getChildren()) {
             if (child instanceof HasHref) {
                 String href = ((HasHref) child).getHref();
-                if (!href.isEmpty()) {
+                if (parent != null && !href.isEmpty()) {
                     parent.selectTab(href.replaceAll("[^a-zA-Z\\d\\s:]", ""));
+                    parent.reload();
                     break;
                 }
             }

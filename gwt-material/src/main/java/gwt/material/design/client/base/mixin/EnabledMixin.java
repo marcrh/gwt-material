@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import com.google.gwt.user.client.ui.HasEnabled;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
 import gwt.material.design.client.base.MaterialWidget;
-import gwt.material.design.client.base.helper.StyleHelper;
 import gwt.material.design.client.constants.CssName;
 
 /**
@@ -35,6 +34,8 @@ public class EnabledMixin<T extends Widget & HasEnabled> extends AbstractMixin<T
     private static final String DISABLED = "disabled";
 
     private HandlerRegistration handler;
+
+    private boolean propagateToChildren;
 
     public EnabledMixin(final T widget) {
         super(widget);
@@ -53,7 +54,7 @@ public class EnabledMixin<T extends Widget & HasEnabled> extends AbstractMixin<T
 
     @Override
     public boolean isEnabled() {
-        return !StyleHelper.containsStyle(uiObject.getStyleName(), CssName.DISABLED);
+        return !uiObject.getElement().hasAttribute("disabled");
     }
 
     @Override
@@ -74,10 +75,14 @@ public class EnabledMixin<T extends Widget & HasEnabled> extends AbstractMixin<T
 
     public void setEnabled(MaterialWidget widget, boolean enabled) {
         setEnabled(enabled);
-        for (Widget child : widget.getChildren()) {
-            if (child instanceof MaterialWidget) {
-                ((MaterialWidget) child).setEnabled(enabled);
-                setEnabled((MaterialWidget) child, enabled);
+
+        if(isPropagateToChildren()) {
+            for (Widget child : widget.getChildren()) {
+                if (child instanceof MaterialWidget) {
+                    ((MaterialWidget) child).setEnabled(enabled);
+                } else if (child instanceof HasEnabled) {
+                    ((HasEnabled) child).setEnabled(enabled);
+                }
             }
         }
     }
@@ -90,5 +95,28 @@ public class EnabledMixin<T extends Widget & HasEnabled> extends AbstractMixin<T
             obj.addStyleName(CssName.DISABLED);
             obj.getElement().setAttribute(DISABLED, "");
         }
+
+        updateWaves(enabled, obj);
+    }
+
+    public void updateWaves(boolean enabled, UIObject obj) {
+        if (obj instanceof MaterialWidget) {
+            MaterialWidget widget = (MaterialWidget) obj;
+            if (enabled) {
+                if (widget.getWaves() != null) {
+                    widget.getElement().addClassName(CssName.WAVES_EFFECT);
+                }
+            } else {
+                widget.getElement().removeClassName(CssName.WAVES_EFFECT);
+            }
+        }
+    }
+
+    public boolean isPropagateToChildren() {
+        return propagateToChildren;
+    }
+
+    public void setPropagateToChildren(boolean propagateToChildren) {
+        this.propagateToChildren = propagateToChildren;
     }
 }

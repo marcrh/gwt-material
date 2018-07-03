@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import gwt.material.design.client.base.HasNoSideNavSelection;
 import gwt.material.design.client.base.HasPosition;
 import gwt.material.design.client.base.MaterialWidget;
 import gwt.material.design.client.base.mixin.CssNameMixin;
+import gwt.material.design.client.base.mixin.HrefMixin;
 import gwt.material.design.client.constants.Color;
 import gwt.material.design.client.constants.CssName;
 import gwt.material.design.client.constants.Position;
@@ -52,8 +53,8 @@ import gwt.material.design.client.ui.html.Div;
 public class MaterialNavBrand extends MaterialWidget implements HasHref, HasPosition, HasNoSideNavSelection {
 
     private Div container = new Div();
-
-    private final CssNameMixin<MaterialNavBrand, Position> posMixin = new CssNameMixin<>(this);
+    private CssNameMixin<MaterialNavBrand, Position> positionMixin;
+    private HrefMixin<MaterialNavBrand> hrefMixin;
 
     /**
      * Material NavBrand is a component wherein you can pass a text / logo branding of your app
@@ -83,35 +84,49 @@ public class MaterialNavBrand extends MaterialWidget implements HasHref, HasPosi
 
     @Override
     public String getHref() {
-        return getElement().getAttribute("href");
+        return getHrefMixin().getHref();
     }
 
     @Override
     public void setHref(String href) {
-        getElement().setAttribute("href", href);
+        getHrefMixin().setHref(href);
     }
 
     @Override
     public String getTarget() {
-        return getElement().getAttribute("target");
+        return getHrefMixin().getTarget();
     }
 
     @Override
     public void setTarget(String target) {
-        getElement().setAttribute("target", target);
+        getHrefMixin().setTarget(target);
     }
 
     @Override
     public Position getPosition() {
-        return posMixin.getCssName();
+        return getPositionMixin().getCssName();
     }
 
     @Override
     public void setPosition(Position position) {
-        posMixin.setCssName(position);
+        getPositionMixin().setCssName(position);
     }
 
     public Div getContainer() {
         return container;
+    }
+
+    protected CssNameMixin<MaterialNavBrand, Position> getPositionMixin() {
+        if (positionMixin == null) {
+            positionMixin = new CssNameMixin<>(this);
+        }
+        return positionMixin;
+    }
+
+    protected HrefMixin<MaterialNavBrand> getHrefMixin() {
+        if (hrefMixin == null) {
+            hrefMixin = new HrefMixin<>(this);
+        }
+        return hrefMixin;
     }
 }

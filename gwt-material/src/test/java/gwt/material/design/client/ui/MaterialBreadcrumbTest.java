@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,24 @@
  */
 package gwt.material.design.client.ui;
 
+import gwt.material.design.client.constants.CssName;
 import gwt.material.design.client.ui.base.AbstractButtonTest;
 
 /**
- * Test case for Breadcrumbs
+ * Test case for Breadcrumbs.
  *
  * @author kevzlou7979
+ * @author Ben Dol
  */
-public class MaterialBreadcrumbTest extends AbstractButtonTest {
+public class MaterialBreadcrumbTest extends AbstractButtonTest<MaterialBreadcrumb> {
 
-    public void init() {
-        MaterialBreadcrumb breadcrumb = new MaterialBreadcrumb();
-        checkBaseButton(breadcrumb);
+    @Override
+    protected MaterialBreadcrumb createWidget() {
+        return new MaterialBreadcrumb();
+    }
+
+    @Override
+    public void testInitialClasses() {
+        checkInitialClasses(CssName.BREADCRUMB);
     }
 }

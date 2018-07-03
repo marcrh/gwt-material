@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,6 @@ public interface MaterialDebugResources extends ClientBundle {
     @Source("js/animation.js")
     TextResource animationJsDebug();
 
-    @Source("js/push.js")
-    TextResource pushNotificationJsDebug();
+    @Source("js/app-installer.js")
+    TextResource appInstallerJsDebug();
 }

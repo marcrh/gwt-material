@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@
  */
 package gwt.material.design.client.ui;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.logical.shared.HasSelectionHandlers;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Widget;
 import gwt.material.design.client.base.HasType;
+import gwt.material.design.client.base.JsLoader;
 import gwt.material.design.client.base.MaterialWidget;
 import gwt.material.design.client.base.mixin.ColorsMixin;
 import gwt.material.design.client.base.mixin.CssTypeMixin;
@@ -37,9 +36,6 @@ import gwt.material.design.client.constants.CssName;
 import gwt.material.design.client.constants.TabType;
 import gwt.material.design.client.ui.html.UnorderedList;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static gwt.material.design.client.js.JsMaterialElement.$;
 
 //@formatter:off
@@ -47,7 +43,7 @@ import static gwt.material.design.client.js.JsMaterialElement.$;
 /**
  * The tabs structure consists of an unordered list of tabs that have hashes corresponding to tab ids.
  * Then when you click on each tab, only the container with the corresponding tab id will become visible.
- *
+ * <p>
  * <h3>UiBinder Usage:</h3>
  * <pre>
  * {@code
@@ -75,52 +71,94 @@ import static gwt.material.design.client.js.JsMaterialElement.$;
  * @see <a href="https://material.io/guidelines/components/tabs.html">Material Design Specification</a>
  */
 //@formatter:on
-public class MaterialTab extends UnorderedList implements HasType<TabType>, HasSelectionHandlers<Integer> {
+public class MaterialTab extends UnorderedList implements JsLoader, HasType<TabType>, HasSelectionHandlers<Integer> {
 
-    private int tabIndex;
     private Color indicatorColor;
-
     private MaterialWidget indicator;
-    private ColorsMixin<MaterialWidget> indicatorColorMixin;
 
-    private final CssTypeMixin<TabType, MaterialTab> typeMixin = new CssTypeMixin<>(this);
-    private List<HandlerRegistration> handlers = new ArrayList<>();
-    private HandlerRegistration selectionHandler;
+    private ColorsMixin<MaterialWidget> indicatorColorMixin;
+    private CssTypeMixin<TabType, MaterialTab> typeMixin;
 
     public MaterialTab() {
         super(CssName.TABS);
     }
 
     @Override
-    protected void initialize() {
+    protected void onLoad() {
+        super.onLoad();
+
+        load();
+    }
+
+    @Override
+    public void load() {
         if (getWidgetCount() > 0) {
+            getChildren().forEach(child -> registerChildHandler(child));
             $(getElement()).tabs();
-
-            if (selectionHandler == null) {
-                selectionHandler = addSelectionHandler(selectionEvent -> this.tabIndex = selectionEvent.getSelectedItem());
-            }
-
-            if (handlers.size() > 0) {
-                for (HandlerRegistration handler : handlers) {
-                    handler.removeHandler();
-                }
-                handlers.clear();
-            }
-
-            for (Widget w : getChildren()) {
-                if (w instanceof MaterialTabItem) {
-                    HandlerRegistration handler = ((MaterialTabItem) w).addMouseDownHandler(e -> SelectionEvent.fire(MaterialTab.this, getChildren().indexOf(w)));
-                    handlers.add(handler);
-                }
-            }
             applyIndicator();
         }
     }
 
     @Override
-    public void reinitialize() {
+    protected void onUnload() {
+        super.onUnload();
+
+        unload();
+    }
+
+    @Override
+    public void unload() {
         clearAllIndicators();
-        $(getElement()).tabs();
+    }
+
+    @Override
+    public void reload() {
+        if (isAttached()) {
+            unload();
+            load();
+        }
+    }
+
+    /**
+     * Select a given tab by id.
+     *
+     * @param tabId Tab to selects id.
+     */
+    public void selectTab(String tabId) {
+        $(getElement()).tabs("select_tab", tabId);
+    }
+
+    @Override
+    public void add(Widget child) {
+        super.add(child);
+        reload();
+    }
+
+    protected void registerChildHandler(Widget child) {
+        if (child instanceof MaterialTabItem) {
+            MaterialTabItem item = (MaterialTabItem) child;
+            item.getHandlerRegistry().clearHandlers();
+            item.registerHandler(item.addMouseDownHandler(e -> SelectionEvent.fire(MaterialTab.this, getChildren().indexOf(child))));
+        }
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        reload();
+    }
+
+    @Override
+    public boolean remove(Widget w) {
+        boolean value = super.remove(w);
+        reload();
+        return value;
+    }
+
+    @Override
+    public void insert(Widget child, int beforeIndex) {
+        super.insert(child, beforeIndex);
+        reload();
     }
 
     protected void applyIndicator() {
@@ -139,11 +177,10 @@ public class MaterialTab extends UnorderedList implements HasType<TabType>, HasS
     }
 
     public int getTabIndex() {
-        return tabIndex;
+        return $(getElement()).find("li:has(a.active)").index();
     }
 
     public void setTabIndex(int tabIndex) {
-        this.tabIndex = tabIndex;
         int i = 0;
         for (Widget w : this) {
             if (i == tabIndex) {
@@ -164,31 +201,29 @@ public class MaterialTab extends UnorderedList implements HasType<TabType>, HasS
         }
     }
 
-    /**
-     * Select a given tab by id.
-     *
-     * @param tabId Tab to selects id.
-     */
-    public void selectTab(String tabId) {
-        Scheduler.get().scheduleDeferred(() -> $(getElement()).tabs("select_tab", tabId));
-    }
-
     protected Element getIndicatorElement() {
         return $(getElement()).find(".indicator").last().asElement();
     }
 
     @Override
     public void setType(TabType type) {
-        typeMixin.setType(type);
+        getTypeMixin().setType(type);
     }
 
     @Override
     public TabType getType() {
-        return typeMixin.getType();
+        return getTypeMixin().getType();
     }
 
     @Override
     public HandlerRegistration addSelectionHandler(SelectionHandler<Integer> handler) {
         return addHandler(handler, SelectionEvent.getType());
+    }
+
+    protected CssTypeMixin<TabType, MaterialTab> getTypeMixin() {
+        if (typeMixin == null) {
+            typeMixin = new CssTypeMixin<>(this);
+        }
+        return typeMixin;
     }
 }

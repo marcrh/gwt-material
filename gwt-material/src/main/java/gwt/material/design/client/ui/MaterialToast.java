@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ import static gwt.material.design.jquery.client.api.JQuery.$;
 //@formatter:on
 public class MaterialToast {
 
-    public static final int DEFAULT_LIFE = 4000;
+    public static final int DURATION = 4000;
 
     private Functions.Func callback;
     private Widget[] widgets;
@@ -73,7 +73,7 @@ public class MaterialToast {
      * @param msg Message text for your toast.
      */
     public static void fireToast(String msg) {
-        fireToast(msg, DEFAULT_LIFE, null);
+        fireToast(msg, DURATION, null);
     }
 
     /**
@@ -81,6 +81,7 @@ public class MaterialToast {
      *
      * @param msg        Message text for your toast.
      * @param lifeMillis how long it should present itself before being removed.
+     *                   If value is less than 0 - then it will be treated as unlimited duration
      */
     public static void fireToast(String msg, int lifeMillis) {
         fireToast(msg, lifeMillis, null);
@@ -91,6 +92,7 @@ public class MaterialToast {
      *
      * @param msg        Message text for your toast.
      * @param lifeMillis how long it should present itself before being removed.
+     *                   If value is less than 0 - then it will be treated as unlimited duration
      * @param className  class name to custom style your toast.
      */
     public static void fireToast(String msg, int lifeMillis, String className) {
@@ -104,19 +106,20 @@ public class MaterialToast {
      * @param className class name to custom style your toast.
      */
     public static void fireToast(String msg, String className) {
-        new MaterialToast().toast(msg, DEFAULT_LIFE, className);
+        new MaterialToast().toast(msg, DURATION, className);
     }
 
     /**
      * @param msg Message text for your toast.
      */
     public void toast(String msg) {
-        toast(msg, DEFAULT_LIFE, null);
+        toast(msg, DURATION, null);
     }
 
     /**
      * @param msg        Message text for your toast.
      * @param lifeMillis how long it should present itself before being removed.
+     *                   If value is less than 0 - then it will be treated as unlimited duration
      */
     public void toast(String msg, int lifeMillis) {
         toast(msg, lifeMillis, null);
@@ -127,18 +130,21 @@ public class MaterialToast {
      * @param className class name to custom style your toast.
      */
     public void toast(String msg, String className) {
-        toast(msg, DEFAULT_LIFE, className);
+        toast(msg, DURATION, className);
     }
 
     /**
      * @param msg        Message text for your toast.
      * @param lifeMillis how long it should present itself before being removed.
+     *                   If value is less than 0 - then it will be treated as unlimited duration
      * @param className  class name to custom style your toast.
      */
     public void toast(String msg, int lifeMillis, String className) {
         String genId = DOM.createUniqueId();
         if (className == null) {
             className = genId;
+        } else {
+            className += ' ' + genId;
         }
         toast(msg, lifeMillis, genId, className, callback);
 
@@ -151,11 +157,17 @@ public class MaterialToast {
     }
 
     protected void toast(String msg, int lifeMillis, String id, String className, Functions.Func callback) {
-        JsMaterialElement.toast(msg, lifeMillis, className, () -> {
+        Object duration = lifeMillis;
+        if (lifeMillis <= 0) {
+            duration = "unlimited";
+        }
+
+        JsMaterialElement.toast(msg, duration, className, () -> {
             if (callback != null) {
                 callback.call();
             }
         });
-        $(".toast." + className).attr("id", id);
+
+        $(".toast." + id).attr("id", id);
     }
 }

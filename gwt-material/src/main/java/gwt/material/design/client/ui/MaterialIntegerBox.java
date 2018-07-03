@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ package gwt.material.design.client.ui;
  * using the i18n settings from the user.
  *
  * @author paulux84
- * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#forms">Material
+ * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#textfields">Material
  * IntegerBox</a>
  * @see <a href="https://material.io/guidelines/components/text-fields.html#">Material Design Specification</a>
  */

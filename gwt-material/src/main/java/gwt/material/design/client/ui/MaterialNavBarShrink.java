@@ -19,6 +19,7 @@
  */
 package gwt.material.design.client.ui;
 
+import com.google.gwt.user.client.Window;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import gwt.material.design.client.base.HasShrinkableNavBarHandlers;
 import gwt.material.design.client.constants.NavBarType;
@@ -56,7 +57,7 @@ import static gwt.material.design.jquery.client.api.JQuery.$;
 //@formatter:on
 public class MaterialNavBarShrink extends MaterialNavBar implements HasShrinkableNavBarHandlers {
 
-    private int offset = 300;
+    private int scrollOffset = 300;
 
     public MaterialNavBarShrink() {
         super();
@@ -64,15 +65,16 @@ public class MaterialNavBarShrink extends MaterialNavBar implements HasShrinkabl
     }
 
     @Override
-    protected void build() {
-        super.build();
+    protected void onLoad() {
+        super.onLoad();
+
         $("header").css("position", "fixed");
         $("header").css("width", "100%");
         final boolean[] fired = {false};
-        window().off().on("scroll", (e, param1) -> {
+        registerHandler(Window.addWindowScrollHandler(scrollEvent -> {
             int distanceY = window().scrollTop();
 
-            if (distanceY > offset) {
+            if (distanceY > scrollOffset) {
                 $(getElement()).addClass("smaller");
                 if (!fired[0]) {
                     NavBarShrinkEvent.fire(this);
@@ -85,8 +87,15 @@ public class MaterialNavBarShrink extends MaterialNavBar implements HasShrinkabl
                     fired[0] = false;
                 }
             }
-            return true;
-        });
+        }));
+    }
+
+    public int getScrollOffset() {
+        return scrollOffset;
+    }
+
+    public void setScrollOffset(int scrollOffset) {
+        this.scrollOffset = scrollOffset;
     }
 
     @Override
@@ -97,13 +106,5 @@ public class MaterialNavBarShrink extends MaterialNavBar implements HasShrinkabl
     @Override
     public HandlerRegistration addShrinkHandler(NavBarShrinkEvent.NavBarShrinkHandler handler) {
         return addHandler(handler, NavBarShrinkEvent.TYPE);
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
     }
 }

@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,11 @@ package gwt.material.design.client.ui;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.ImageElement;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.ui.HasValue;
 import gwt.material.design.client.base.*;
 import gwt.material.design.client.base.mixin.ActivatesMixin;
 import gwt.material.design.client.base.mixin.CssTypeMixin;
@@ -58,11 +61,11 @@ import static gwt.material.design.client.js.JsMaterialElement.$;
  */
 //@formatter:on
 public class MaterialImage extends MaterialWidget implements HasCaption, HasType<ImageType>, HasImage,
-        HasLoadHandlers, HasErrorHandlers, HasActivates {
+        HasLoadHandlers, HasErrorHandlers, HasActivates, HasValue<String> {
 
-    private final CssTypeMixin<ImageType, MaterialImage> typeMixin = new CssTypeMixin<>(this);
-    private final ImageMixin<MaterialImage> imageMixin = new ImageMixin<>(this);
-    private final ActivatesMixin<MaterialImage> activatesMixin = new ActivatesMixin<>(this);
+    private CssTypeMixin<ImageType, MaterialImage> typeMixin;
+    private ImageMixin<MaterialImage> imageMixin;
+    private ActivatesMixin<MaterialImage> activatesMixin;
 
     /**
      * Creates an empty image.
@@ -104,18 +107,20 @@ public class MaterialImage extends MaterialWidget implements HasCaption, HasType
     }
 
     @Override
-    protected void initialize() {
+    protected void onLoad() {
+        super.onLoad();
+
         $(".materialboxed").materialbox();
     }
 
     @Override
     public void setType(ImageType type) {
-        typeMixin.setType(type);
+        getTypeMixin().setType(type);
     }
 
     @Override
     public ImageType getType() {
-        return typeMixin.getType();
+        return getTypeMixin().getType();
     }
 
     @Override
@@ -130,22 +135,22 @@ public class MaterialImage extends MaterialWidget implements HasCaption, HasType
 
     @Override
     public void setUrl(String url) {
-        imageMixin.setUrl(url);
+        setValue(url, true);
     }
 
     @Override
     public String getUrl() {
-        return imageMixin.getUrl();
+        return getValue();
     }
 
     @Override
     public void setResource(ImageResource resource) {
-        imageMixin.setResource(resource);
+        getImageMixin().setResource(resource);
     }
 
     @Override
     public ImageResource getResource() {
-        return imageMixin.getResource();
+        return getImageMixin().getResource();
     }
 
     public int getWidth() {
@@ -154,6 +159,36 @@ public class MaterialImage extends MaterialWidget implements HasCaption, HasType
 
     public int getHeight() {
         return ((ImageElement)getElement().cast()).getHeight();
+    }
+
+    @Override
+    public void setActivates(String activates) {
+        getActivatesMixin().setActivates(activates);
+    }
+
+    @Override
+    public String getActivates() {
+        return getActivatesMixin().getActivates();
+    }
+
+    @Override
+    public String getValue() {
+        return getImageMixin().getUrl();
+    }
+
+    @Override
+    public void setValue(String value) {
+        setValue(value, false);
+    }
+
+    @Override
+    public void setValue(String value, boolean fireEvents) {
+        String oldValue = getUrl();
+        getImageMixin().setUrl(value);
+
+        if(fireEvents) {
+            ValueChangeEvent.fireIfNotEqual(this, oldValue, value);
+        }
     }
 
     @Override
@@ -167,12 +202,28 @@ public class MaterialImage extends MaterialWidget implements HasCaption, HasType
     }
 
     @Override
-    public void setActivates(String activates) {
-        activatesMixin.setActivates(activates);
+    public HandlerRegistration addValueChangeHandler(ValueChangeHandler<String> handler) {
+        return addHandler(handler, ValueChangeEvent.getType());
     }
 
-    @Override
-    public String getActivates() {
-        return activatesMixin.getActivates();
+    protected CssTypeMixin<ImageType, MaterialImage> getTypeMixin() {
+        if (typeMixin == null) {
+            typeMixin = new CssTypeMixin<>(this);
+        }
+        return typeMixin;
+    }
+
+    protected ImageMixin<MaterialImage> getImageMixin() {
+        if (imageMixin == null) {
+            imageMixin = new ImageMixin<>(this);
+        }
+        return imageMixin;
+    }
+
+    protected ActivatesMixin<MaterialImage> getActivatesMixin() {
+        if (activatesMixin == null) {
+            activatesMixin = new ActivatesMixin<>(this);
+        }
+        return activatesMixin;
     }
 }

@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
     /**
      * Panel to display the result items
      */
-    private MaterialSearchResult searchResultPanel;
+    private MaterialSearchResult searchResultPanel = new MaterialSearchResult();
     /**
      * Link selected to determine easily during the selection event (up / down key events)
      */
@@ -133,29 +133,18 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
     protected void onLoad() {
         super.onLoad();
 
-        build();
-    }
-
-    @Override
-    protected void build() {
         setType(InputType.SEARCH);
         label.add(iconSearch);
         label.getElement().setAttribute("for", "search");
         add(label);
         add(iconClose);
-        iconClose.addMouseDownHandler(mouseDownEvent -> CloseEvent.fire(MaterialSearch.this, getText()));
 
-        if (searchResultPanel == null || !searchResultPanel.isAttached()) {
-            // populate the lists of search result on search panel
-            searchResultPanel = new MaterialSearchResult();
-            add(searchResultPanel);
-        }
-    }
+        registerHandler(iconClose.addMouseDownHandler(mouseDownEvent -> CloseEvent.fire(MaterialSearch.this, getText())));
 
-    @Override
-    protected void initialize() {
+        add(searchResultPanel);
+
         // Add Key Up event to filter the searches
-        addKeyUpHandler(new KeyUpHandler() {
+        registerHandler(addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent event) {
                 String keyword = getText().toLowerCase();
@@ -253,7 +242,7 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
                 $(valueBoxBase.getElement()).focus();
                 searchResultPanel.clear();
             }
-        });
+        }));
     }
 
     @Override
@@ -264,6 +253,21 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
         setCurSel(-1);
     }
 
+    /**
+     * Programmatically open the search input field component
+     */
+    public void open() {
+        setActive(true);
+        Scheduler.get().scheduleDeferred(() -> $(valueBoxBase.getElement()).focus());
+        OpenEvent.fire(MaterialSearch.this, getText());
+    }
+
+    public void close() {
+        setActive(false);
+        Scheduler.get().scheduleDeferred(() -> $(valueBoxBase.getElement()).blur());
+        CloseEvent.fire(MaterialSearch.this, getText());
+    }
+
     protected void applyHighlightedItem(MaterialLink link) {
         link.addStyleName(CssName.HIGLIGHTED);
         setSelectedLink(link);
@@ -272,16 +276,6 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
     protected native void locateSearch(String location)/*-{
         $wnd.window.location.hash = location;
     }-*/;
-
-    @Override
-    public HandlerRegistration addCloseHandler(final CloseHandler<String> handler) {
-        return addHandler((CloseHandler<String>) handler::onClose, CloseEvent.getType());
-    }
-
-    @Override
-    public HandlerRegistration addOpenHandler(OpenHandler<String> handler) {
-        return addHandler((OpenHandler<String>) handler::onOpen, OpenEvent.getType());
-    }
 
     @Override
     public void setActive(boolean active) {
@@ -299,15 +293,6 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
     @Override
     public boolean isActive() {
         return active;
-    }
-
-    /**
-     * Programmatically open the search input field component
-     */
-    public void open() {
-        setActive(true);
-        Scheduler.get().scheduleDeferred(() -> $(valueBoxBase.getElement()).focus());
-        OpenEvent.fire(MaterialSearch.this, getText());
     }
 
     public MaterialLink getSelectedLink() {
@@ -340,6 +325,10 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
 
     public void setSelectedObject(SearchObject selectedObject) {
         this.selectedObject = selectedObject;
+
+        if (selectedObject != null) {
+            setText(selectedObject.getKeyword());
+        }
     }
 
     /**
@@ -347,22 +336,6 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
      */
     public List<SearchObject> getTempSearches() {
         return tempSearches;
-    }
-
-    /**
-     * This handler will be triggered when search is finish
-     */
-    @Override
-    public HandlerRegistration addSearchFinishHandler(final SearchFinishEvent.SearchFinishHandler handler) {
-        return addHandler(handler, SearchFinishEvent.TYPE);
-    }
-
-    /**
-     * This handler will be triggered when there's no search result
-     */
-    @Override
-    public HandlerRegistration addSearchNoResultHandler(final SearchNoResultEvent.SearchNoResultHandler handler) {
-        return addHandler(handler, SearchNoResultEvent.TYPE);
     }
 
     public MaterialIcon getIconClose() {
@@ -380,5 +353,31 @@ public class MaterialSearch extends MaterialValueBox<String> implements HasOpenH
 
     public MaterialIcon getIconSearch() {
         return iconSearch;
+    }
+
+    @Override
+    public HandlerRegistration addCloseHandler(final CloseHandler<String> handler) {
+        return addHandler((CloseHandler<String>) handler::onClose, CloseEvent.getType());
+    }
+
+    @Override
+    public HandlerRegistration addOpenHandler(OpenHandler<String> handler) {
+        return addHandler((OpenHandler<String>) handler::onOpen, OpenEvent.getType());
+    }
+
+    /**
+     * This handler will be triggered when search is finish
+     */
+    @Override
+    public HandlerRegistration addSearchFinishHandler(final SearchFinishEvent.SearchFinishHandler handler) {
+        return addHandler(handler, SearchFinishEvent.TYPE);
+    }
+
+    /**
+     * This handler will be triggered when there's no search result
+     */
+    @Override
+    public HandlerRegistration addSearchNoResultHandler(final SearchNoResultEvent.SearchNoResultHandler handler) {
+        return addHandler(handler, SearchNoResultEvent.TYPE);
     }
 }

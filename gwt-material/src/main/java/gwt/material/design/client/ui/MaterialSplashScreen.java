@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,19 +45,18 @@ import gwt.material.design.client.ui.html.Div;
  * }</pre>
  * <h3>Java Usage:</h3>
  * <pre>
- * {@code
- *
- * @UiField MaterialSplashScreen splash;
+ * {@code @UiField MaterialSplashScreen splash;
  * splash.show();
- * Timer t = new Timer() {
- *     @Override
+ * Timer t = new Timer()
+ *  { @Override
  *     public void run() {
  *         splash.hide();
  *     }
  * };
  * t.schedule(3000);
- *
  * }</pre>
+ * }
+ *
  *
  * @author kevzlou7979
  * @author Ben Dol
@@ -72,15 +71,15 @@ public class MaterialSplashScreen extends MaterialWidget {
 
     public MaterialSplashScreen() {
         super(Document.get().createDivElement(), CssName.SPLASH_SCREEN);
-        build();
     }
 
     @Override
-    protected void build() {
+    protected void onLoad() {
         setDisplay(Display.NONE);
 
         container.setWidth("100%");
         container.getElement().getStyle().setMarginTop(15, Style.Unit.PCT);
+        super.onLoad();
 
         super.add(container);
         super.add(progress);

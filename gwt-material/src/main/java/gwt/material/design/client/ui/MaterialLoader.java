@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ import gwt.material.design.client.ui.html.Div;
  * loader.setType(LoaderType.CIRCULAR);
  * loader.setScrollDisabled(true);
  * loader.show();
- * Timer t = new Timer() {
- * @Override
+ * Timer t = new Timer()
+ * { @Override
  * public void run() {
  * loader.hide();
  * }
@@ -61,17 +61,19 @@ import gwt.material.design.client.ui.html.Div;
  * @author Ben Dol
  *
  * @see <a href="http://gwtmaterialdesign.github.io/gwt-material-demo/#loader">Material Loaders</a>
- * @see <a href="https://material.io/guidelines/components/progress-activity.html#">Material Design Specification</a>
+ * @see <a href="https://material.io/guidelines/components/progress-activity.html">Material Design Specification</a>
+ * }
  */
 //@formatter:on
 public class MaterialLoader {
 
-    private Div div = new Div();
     private static MaterialLoader loader = new MaterialLoader(LoaderType.CIRCULAR);
+
+    private boolean scrollDisabled;
+    private Div div = new Div();
     private MaterialPreLoader preLoader = new MaterialPreLoader();
     private MaterialProgress progress = new MaterialProgress();
     private Panel container = RootPanel.get();
-    private boolean scrollDisabled;
     private LoaderType type = LoaderType.CIRCULAR;
 
     public MaterialLoader(LoaderType type) {
@@ -97,7 +99,9 @@ public class MaterialLoader {
      */
     public void show() {
         if (!(container instanceof RootPanel)) {
-            container.getElement().getStyle().setPosition(Style.Position.RELATIVE);
+            if (!(container instanceof MaterialDialog)) {
+                container.getElement().getStyle().setPosition(Style.Position.RELATIVE);
+            }
             div.getElement().getStyle().setPosition(Style.Position.ABSOLUTE);
         }
         if (scrollDisabled) {
@@ -132,17 +136,17 @@ public class MaterialLoader {
     /**
      * Static helper class that shows / hides a circular loader
      */
-    public static void showLoading(boolean isShow) {
-        showLoading(isShow, RootPanel.get());
+    public static void loading(boolean visible) {
+        loading(visible, RootPanel.get());
     }
 
     /**
      * Static helper class that shows / hides a circular loader within a container
      */
-    public static void showLoading(boolean isShow, Panel container) {
+    public static void loading(boolean visible, Panel container) {
         loader.setType(LoaderType.CIRCULAR);
         loader.setContainer(container);
-        if (isShow) {
+        if (visible) {
             loader.show();
         } else {
             loader.hide();
@@ -152,17 +156,17 @@ public class MaterialLoader {
     /**
      * Static helper class that shows / hides a progress loader
      */
-    public static void showProgress(boolean isShow) {
-        showProgress(isShow, RootPanel.get());
+    public static void progress(boolean visible) {
+        progress(visible, RootPanel.get());
     }
 
     /**
      * Static helper class that shows / hides a progress loader within a container
      */
-    public static void showProgress(boolean isShow, Panel container) {
+    public static void progress(boolean visible, Panel container) {
         loader.setType(LoaderType.PROGRESS);
         loader.setContainer(container);
-        if (isShow) {
+        if (visible) {
             loader.show();
         } else {
             loader.hide();
@@ -179,7 +183,7 @@ public class MaterialLoader {
     /**
      * Set the type of the MaterialLoader
      *
-     * @type There are two types of Loader (CIRCULAR and PROGRESS Loaders)
+     * @param type There are two types of Loader (CIRCULAR and PROGRESS)
      */
     public void setType(LoaderType type) {
         this.type = type;
@@ -211,5 +215,13 @@ public class MaterialLoader {
      */
     public void setScrollDisabled(boolean scrollDisabled) {
         this.scrollDisabled = scrollDisabled;
+    }
+
+    public MaterialProgress getProgress() {
+        return progress;
+    }
+
+    public MaterialPreLoader getPreLoader() {
+        return preLoader;
     }
 }

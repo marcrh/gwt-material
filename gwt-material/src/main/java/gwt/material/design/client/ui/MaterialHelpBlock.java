@@ -2,7 +2,7 @@
  * #%L
  * GwtMaterial
  * %%
- * Copyright (C) 2015 - 2016 GwtMaterialDesign
+ * Copyright (C) 2015 - 2017 GwtMaterialDesign
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,20 @@ import gwt.material.design.client.ui.html.Div;
 public class MaterialHelpBlock extends Div implements HasText, HasIcon {
 
     private MaterialIcon icon = new MaterialIcon();
-    private TextMixin<MaterialHelpBlock> textMixin = new TextMixin<>(this);
+    private TextMixin<MaterialHelpBlock> textMixin;
+
+    public void clear() {
+        setText("");
+    }
 
     @Override
     public String getText() {
-        return textMixin.getText();
+        return getTextMixin().getText();
     }
 
     @Override
     public void setText(String text) {
-        textMixin.setText(text);
+        getTextMixin().setText(text);
     }
 
     @Override
@@ -79,6 +83,11 @@ public class MaterialHelpBlock extends Div implements HasText, HasIcon {
     }
 
     @Override
+    public Color getIconColor() {
+        return icon.getIconColor();
+    }
+
+    @Override
     public void setIconPrefix(boolean prefix) {
         icon.setIconPrefix(prefix);
     }
@@ -88,7 +97,10 @@ public class MaterialHelpBlock extends Div implements HasText, HasIcon {
         return icon.isIconPrefix();
     }
 
-    public void clear() {
-        setText("");
+    protected TextMixin<MaterialHelpBlock> getTextMixin() {
+        if (textMixin == null) {
+            textMixin = new TextMixin<>(this);
+        }
+        return textMixin;
     }
 }

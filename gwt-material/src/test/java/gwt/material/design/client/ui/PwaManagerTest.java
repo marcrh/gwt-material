@@ -21,53 +21,82 @@ package gwt.material.design.client.ui;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import gwt.material.design.client.MaterialTestCase;
 import gwt.material.design.client.pwa.PwaManager;
-import gwt.material.design.client.ui.base.MaterialWidgetTest;
+import gwt.material.design.client.pwa.serviceworker.ServiceWorkerManager;
+import gwt.material.design.client.ui.base.CustomServiceWorker;
 
 import static gwt.material.design.jquery.client.api.JQuery.$;
 
-public class PwaManagerTest extends MaterialWidgetTest {
+public class PwaManagerTest extends MaterialTestCase {
 
-    public void init() {
-        PwaManager.getInstance().load();
-        checkManifest();
-        checkMetaThemeColor();
-        checkServiceWorker();
+    final String WEB_MANIFEST_URL = "manifest.json";
+    final String SERVICE_WORKER_URL = "service-worker.js";
+    final String THEME_COLOR = "#ffffff";
+
+    @Override
+    protected void gwtSetUp() throws Exception {
+        super.gwtSetUp();
     }
 
-    protected void checkManifest() {
-        final String EXPECTED_MANIFEST = "manifest.json";
+    public void testManifest() {
+        // Load Web Manifest
+        PwaManager.getInstance().setWebManifest(WEB_MANIFEST_URL).load();
+        assertNotNull(PwaManager.getInstance().getWebManifestManager());
+
         // Get the link manifest element and check whether it's null or not
         Element linkManifest = getLinkManifestElement();
         assertNotNull(linkManifest);
         // Check whether the link manifest has an href of expected result
-        assertEquals(linkManifest.getAttribute("href"), EXPECTED_MANIFEST);
-        // Unregiter the PWA Manager
-        PwaManager.getInstance().unLoad();
+        assertEquals(linkManifest.getAttribute("href"), WEB_MANIFEST_URL);
+
+        // Unregister the PWA Manager
+        PwaManager.getInstance().unload();
         assertNull(getLinkManifestElement());
+
         // Reload the PWA Manager
         PwaManager.getInstance().reload();
         assertNotNull($(getLinkManifestElement()));
     }
 
-    protected void checkMetaThemeColor() {
-        final String EXPECTED_THEME_COLOR = "#ffffff";
+    public void testMetaThemeColor() {
+        // Load Browser meta theme color
+        PwaManager.getInstance().setThemeColor(THEME_COLOR).load();
+        assertNotNull(PwaManager.getInstance().getBrowserThemeManager());
+
         // Get the link manifest element and check whether it's null or not
         Element metaThemeColor = getMetaThemeColor();
         assertNotNull(metaThemeColor);
         // Check whether the link manifest has an href of expected result
-        assertEquals(metaThemeColor.getAttribute("content"), EXPECTED_THEME_COLOR);
+        assertEquals(metaThemeColor.getAttribute("content"), THEME_COLOR);
+
         // Unregister the PWA Manager
-        PwaManager.getInstance().unLoad();
+        PwaManager.getInstance().unload();
         assertNull(getMetaThemeColor());
+
         // Reload the PWA Manager
         PwaManager.getInstance().reload();
         assertNotNull($(getMetaThemeColor()));
     }
 
-    protected void checkServiceWorker() {
-        PwaManager.getInstance().setupServiceWorker("service-worker.js");
+    public void testServiceWorker() {
+        // Load Service worker
+        PwaManager.getInstance().setServiceWorker(SERVICE_WORKER_URL);
+        checkServiceWorker();
+        PwaManager.getInstance().unload();
+    }
 
+    public void testCustomServiceWorker() {
+        // Load Custom Service Worker
+        PwaManager.getInstance().setServiceWorker(new CustomServiceWorker(SERVICE_WORKER_URL));
+        checkServiceWorker();
+        PwaManager.getInstance().unload();
+    }
+
+    protected void checkServiceWorker() {
+        assertNotNull(PwaManager.getInstance().getServiceWorkerManager());
+        ServiceWorkerManager manager = PwaManager.getInstance().getServiceWorkerManager();
+        assertEquals(SERVICE_WORKER_URL, manager.getResource());
     }
 
     protected Element getMetaThemeColor() {
