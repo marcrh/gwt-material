@@ -43,11 +43,19 @@ div {
     display: block;
 }
 
+/*
+* IE Fixed for staircase issue
+* Read more under SECTION 2 : https://code.tutsplus.com/tutorials/9-most-common-ie-bugs-and-how-to-fix-them--net-7764
+*/
+nav ul li a {
+    float: left;
+}
+
 /** Badge **/
 nav ul a span.badge {
     margin-left: 8px !important;
     float: right;
-    margin-top: 20px;
+    margin-top: 22px;
 }
 
 .side-nav .badge {
@@ -230,6 +238,11 @@ i.disabled:hover {
     border-radius: 50%;
     font-size: 1.2em;
     text-align: center;
+}
+
+.outlined.chip .letter {
+    width: 30px;
+    height: 30px;
 }
 
 /** Outlined Chips (MD2) **/
@@ -822,6 +835,18 @@ input:-webkit-autofill {
     vertical-align: middle;
 }
 
+/**
+* ListBox - Fixed for Safari9+ Issue with Blinking Indicator on IOS Devices
+* Read More - https://stackoverflow.com/questions/38848742/material-select-blinking-on-ios
+**/
+input.select-dropdown {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
 /** Loader */
 .loader-wrapper {
     width: 100%;
@@ -1051,9 +1076,13 @@ ul.side-nav li {
 }
 
 ul.side-nav i {
-    font-size: 2em !important;
+    font-size: 2em;
     width: 2rem;
     line-height: inherit;
+}
+
+ul.side-nav .sidenav-content i {
+    font-size: 1.6em;
 }
 
 ul.side-nav .collapsible-header,
@@ -1340,7 +1369,7 @@ i[class*="waves-"].material-icons {
     }
 
     .input-field input[type=search] + label {
-        z-index: 999 !important;
+        z-index: 998 !important;
     }
 
     .search-result {
@@ -1381,6 +1410,11 @@ i[class*="waves-"].material-icons {
     ul.side-nav.card {
         margin: initial;
         position: fixed;
+    }
+
+    /** Badge **/
+    nav ul a span.badge {
+        margin-top: 18px;
     }
 
     /** Tabs **/
@@ -1476,5 +1510,27 @@ i[class*="waves-"].material-icons {
 
     ul.side-nav.fixed {
         left: 0 !important;
+    }
+}
+
+/**
+* Fix IOS Issue - Auto zooms when focusing on input element. And also the excess box-shadow
+* Causing a border on the left part of input-fields on mobile devices.
+* Read more - https://github.com/Dogfalo/materialize/issues/5008
+**/
+@media screen and (max-width: 768px) {
+    .input-field input:not([type]),
+    .input-field input[type=text],
+    .input-field input[type=password],
+    .input-field input[type=email],
+    .input-field input[type=url],
+    .input-field input[type=time],
+    .input-field input[type=date],
+    .input-field input[type=datetime-local],
+    .input-field input[type=tel],
+    .input-field input[type=number],
+    .input-field input[type=search],
+    .input-field textarea.materialize-textarea {
+        font-size: 16px;
     }
 }
