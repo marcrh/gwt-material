@@ -20,6 +20,7 @@
 package gwt.material.design.client.ui;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.editor.client.Editor;
@@ -33,6 +34,7 @@ import com.google.gwt.i18n.shared.DirectionEstimator;
 import com.google.gwt.i18n.shared.HasDirectionEstimator;
 import com.google.gwt.uibinder.client.UiChild;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HasName;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.ValueBoxBase;
@@ -48,6 +50,7 @@ import gwt.material.design.client.events.*;
 import gwt.material.design.client.events.DragOverEvent;
 import gwt.material.design.client.events.DragStartEvent;
 import gwt.material.design.client.events.DropEvent;
+import gwt.material.design.client.events.TextChangeEvent.TextChangeEventHandler;
 import gwt.material.design.client.ui.html.Label;
 
 //@formatter:off
@@ -120,6 +123,9 @@ public class MaterialValueBox<T> extends AbstractValueWidget<T> implements HasCh
     public void setup(ValueBoxBase<T> tValueBox) {
         valueBoxBase = tValueBox;
         add(valueBoxBase);
+        
+        sinkEvents(Event.ONKEYUP);
+        sinkEvents(Event.ONPASTE);
     }
 
     @Deprecated
@@ -172,7 +178,9 @@ public class MaterialValueBox<T> extends AbstractValueWidget<T> implements HasCh
     @Override
     public void setText(String text) {
         valueBoxBase.setText(text);
-
+        
+        fireEvent(new TextChangeEvent());
+        
         if (text != null && !text.isEmpty()) {
             label.addStyleName(CssName.ACTIVE);
         }
@@ -264,6 +272,8 @@ public class MaterialValueBox<T> extends AbstractValueWidget<T> implements HasCh
     public void setValue(T value, boolean fireEvents) {
         valueBoxBase.setValue(value, fireEvents);
 
+        fireEvent(new TextChangeEvent());
+        
         if (value != null && !value.toString().isEmpty()) {
             label.addStyleName(CssName.ACTIVE);
         }
@@ -311,6 +321,40 @@ public class MaterialValueBox<T> extends AbstractValueWidget<T> implements HasCh
     public String getName() {
         return valueBoxBase.getName();
     }
+    
+    @Override
+    public void onBrowserEvent(Event event) {
+    	super.onBrowserEvent(event);
+
+    	switch (event.getTypeInt()) {
+        	case Event.ONKEYUP:
+        	case Event.ONPASTE:
+        	{
+        		//If there are no handlers exit
+            	if(getHandlerCount(TextChangeEvent.TYPE)==0)return;
+
+        		// Scheduler needed so pasted data shows up in TextBox before we fire event
+        		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+
+        		@Override
+        		public void execute() {
+        			fireEvent(new TextChangeEvent(true));
+        		}
+        		});
+        		break;
+        	}
+        	default:
+        		// Do nothing
+    	}
+    }
+
+    public HandlerRegistration addTextChangeEventHandler(TextChangeEventHandler handler) {       	
+ 	   return addHandler(event -> {  
+ 		   if (isEnabled()) {
+ 			   handler.onTextChange(event);
+ 		   }
+ 	   }, TextChangeEvent.TYPE);
+ 	}
 
     @Override
     public void setErrorText(String errorText) {
